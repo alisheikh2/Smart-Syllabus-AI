@@ -28,10 +28,10 @@ Ensure you have Node.js installed on your system.
 2. Installation
 Clone the repository and install the required dependencies:
 
-git clone (https://github.com/alisheikh2/Smart-Syllabus-AI.git)
+Bash
+git clone https://github.com/alisheikh2/Smart-Syllabus-AI.git
 cd SmartSyllabusAI
 npm install
-
 3. Configuration
 To get the application up and running:
 
@@ -44,12 +44,14 @@ Important: You will need to use your own personal AI API key to access AI servic
 4. Running the App
 To start the development server:
 
-
+Bash
 npm start
 The application will be accessible at http://localhost:3000.
 
 💡 Key Highlights
 Rendering Engine: Integrated with KaTeX to provide a professional, readable interface for mathematical content.
+
+Caching Strategy: Implemented LocalStorage caching to minimize redundant network requests, improving both speed and reliability.
 
 🤝 Support
 If you encounter any bugs or would like to suggest new features, please feel free to open an issue on GitHub.
