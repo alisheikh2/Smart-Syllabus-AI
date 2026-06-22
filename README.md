@@ -70,3 +70,8 @@ For bugs or feature requests, open an issue on GitHub.
 ### 👨‍💻 Developer
 
 Ali
+
+## Demo
+Click the link below to watch the project in action:
+
+[Click here to watch the SmartSyllabusAI Demo Video](https://drive.google.com/file/d/1mADF5lTH1kRSRRaybExMEJN5NallSrSa/view?usp=sharing)
