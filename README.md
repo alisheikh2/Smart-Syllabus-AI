@@ -1,59 +1,70 @@
-SmartSyllabusAI
-SmartSyllabusAI is an advanced AI-powered educational platform designed to help students optimize their course content and generate intelligent assessments efficiently.
+# 🚀 SmartSyllabusAI
 
-🚀 Features
-AI-Powered Course Generation: Organize and generate structured course content and syllabi using AI.
+SmartSyllabusAI is an AI-powered educational platform designed to help students generate structured course content, intelligent assessments, and render mathematical formulas efficiently.
 
-Smart Assessment System: Automatically generate tests and assessments based on specific course material.
+## ✨ Features
 
-Math & Formula Rendering: Seamless integration with KaTeX for high-quality, accurate rendering of complex mathematical equations.
+### 🧠 AI-Powered Course Generation
+Generate structured syllabi and learning material using AI.
 
-Performance Optimized: Built with efficient browser-based caching to ensure fast loading and a smooth user experience.
+### 📝 Smart Assessment System
+Auto-generate quizzes, MCQs, and tests from course content.
 
-🛠 Tech Stack
-Frontend: React.js
+### 📐 Math & Formula Rendering
+KaTeX integration for clean mathematical equation rendering.
 
-Styling: CSS
+### ⚡ Performance Optimized
+Uses LocalStorage caching for faster performance and reduced API calls.
 
-Math Rendering: KaTeX
+---
 
-API Communication: Axios
+## 🛠 Tech Stack
 
-Storage: LocalStorage (for data caching)
+- React.js
+- CSS
+- KaTeX
+- Axios
+- LocalStorage
 
-⚙️ Setup Instructions
-1. Prerequisites
-Ensure you have Node.js installed on your system.
+---
 
-2. Installation
-Clone the repository and install the required dependencies:
+## ⚙️ Setup Instructions
 
-Bash
+### 1. Prerequisites
+- Node.js installed
+
+---
+
+### 2. Clone Repository
 git clone https://github.com/alisheikh2/Smart-Syllabus-AI.git
 cd SmartSyllabusAI
+
+### 3. Install Dependencies
 npm install
-3. Configuration
-To get the application up and running:
 
-Navigate to src/services/api.js.
+### 4. Configuration
+Go to src/services/api.js
+Set backend baseURL
+Add AI API key in backend environment variables
 
-Update the baseURL to point to your backend server.
-
-Important: You will need to use your own personal AI API key to access AI services. Please configure this key within your backend environment variables to ensure the system functions correctly.
-
-4. Running the App
-To start the development server:
-
-Bash
+### 5. Run Project
 npm start
-The application will be accessible at http://localhost:3000.
 
-💡 Key Highlights
-Rendering Engine: Integrated with KaTeX to provide a professional, readable interface for mathematical content.
+App will run at:
+http://localhost:3000
 
-Caching Strategy: Implemented LocalStorage caching to minimize redundant network requests, improving both speed and reliability.
+### 💡 Key Highlights
+KaTeX-powered math rendering
+Optimized caching system
+Clean React architecture
 
-🤝 Support
-If you encounter any bugs or would like to suggest new features, please feel free to open an issue on GitHub.
+### 🤝 Support
 
-Developed by Ali.
+For bugs or feature requests, open an issue on GitHub.
+
+### 👨‍💻 Developer
+
+Ali
+```bash
+git clone https://github.com/alisheikh2/Smart-Syllabus-AI.git
+cd SmartSyllabusAI
