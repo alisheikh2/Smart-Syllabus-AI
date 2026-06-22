@@ -37,6 +37,7 @@ Uses LocalStorage caching for faster performance and reduced API calls.
 
 ### 2. Clone Repository
 git clone https://github.com/alisheikh2/Smart-Syllabus-AI.git
+
 cd SmartSyllabusAI
 
 ### 3. Install Dependencies
@@ -44,7 +45,9 @@ npm install
 
 ### 4. Configuration
 Go to src/services/api.js
+
 Set backend baseURL
+
 Add AI API key in backend environment variables
 
 ### 5. Run Project
@@ -55,7 +58,9 @@ http://localhost:3000
 
 ### 💡 Key Highlights
 KaTeX-powered math rendering
+
 Optimized caching system
+
 Clean React architecture
 
 ### 🤝 Support
@@ -65,6 +70,3 @@ For bugs or feature requests, open an issue on GitHub.
 ### 👨‍💻 Developer
 
 Ali
-```bash
-git clone https://github.com/alisheikh2/Smart-Syllabus-AI.git
-cd SmartSyllabusAI
