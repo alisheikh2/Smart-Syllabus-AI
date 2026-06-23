@@ -16,9 +16,10 @@ const courseSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    // ✅ FIX: Array se Object kiya — AI hamesha ek object return karta hai
     studyMaterial: {
-      type: Array,
-      default: [],
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
     },
     createdBy: {
       type: String,

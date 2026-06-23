@@ -5,11 +5,28 @@ function CourseFormModal({ onClose, onSubmit, loading }) {
   const [audience, setAudience] = useState("");
   const [duration, setDuration] = useState("");
   const [difficulty, setDifficulty] = useState("Beginner");
+  const [cooldown, setCooldown] = useState(0);
+
+  const isDisabled = loading || cooldown > 0;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!topic || !audience || !duration) return;
+    if (isDisabled) return;
+
     onSubmit({ topic, audience, duration, difficulty });
+
+    // Start a cooldown so rapid re-clicks can't fire duplicate requests
+    setCooldown(8);
+    const interval = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
   };
 
   return (
@@ -85,7 +102,7 @@ function CourseFormModal({ onClose, onSubmit, loading }) {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={isDisabled}
             className="mt-2 bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
@@ -93,6 +110,8 @@ function CourseFormModal({ onClose, onSubmit, loading }) {
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 Generating...
               </>
+            ) : cooldown > 0 ? (
+              `Please wait (${cooldown}s)`
             ) : (
               "Generate course"
             )}

@@ -9,3 +9,9 @@ export const getAssessmentsByCourse = async (courseId) => {
   const response = await api.get(`/assessments/course/${courseId}`);
   return response.data;
 };
+
+// ✅ NEW
+export const updateAssessment = async (id, updates) => {
+  const response = await api.patch(`/assessments/${id}`, updates);
+  return response.data;
+};

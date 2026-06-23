@@ -1,9 +1,9 @@
 import jsPDF from "jspdf";
 
-const PAGE_WIDTH = 210; // A4 width in mm
-const MARGIN = 18;
-const MAX_WIDTH = PAGE_WIDTH - MARGIN * 2;
-const PAGE_HEIGHT = 297; // A4 height in mm
+const PAGE_WIDTH   = 210;
+const MARGIN       = 18;
+const MAX_WIDTH    = PAGE_WIDTH - MARGIN * 2;
+const PAGE_HEIGHT  = 297;
 const BOTTOM_LIMIT = PAGE_HEIGHT - 20;
 
 function createDoc() {
@@ -25,8 +25,7 @@ function addHeader(doc, title, subtitle) {
 
   doc.setDrawColor(220, 220, 220);
   doc.line(MARGIN, 35, PAGE_WIDTH - MARGIN, 35);
-
-  return 45; // next Y position
+  return 45;
 }
 
 function checkPageBreak(doc, y, neededSpace = 10) {
@@ -38,16 +37,18 @@ function checkPageBreak(doc, y, neededSpace = 10) {
 }
 
 function writeWrappedText(doc, text, x, y, options = {}) {
-  const { fontSize = 11, lineHeight = 6, maxWidth = MAX_WIDTH - (x - MARGIN) } = options;
+  const {
+    fontSize   = 11,
+    lineHeight = 6,
+    maxWidth   = MAX_WIDTH - (x - MARGIN),
+  } = options;
   doc.setFontSize(fontSize);
   const lines = doc.splitTextToSize(text, maxWidth);
-
   lines.forEach((line) => {
     y = checkPageBreak(doc, y, lineHeight);
     doc.text(line, x, y);
     y += lineHeight;
   });
-
   return y;
 }
 
@@ -63,10 +64,11 @@ function writeSectionTitle(doc, text, y) {
   return y + 8;
 }
 
+// ── Existing exports ────────────────────────────────────────
+
 export function generateSyllabusPDF(course) {
   const doc = createDoc();
   let y = addHeader(doc, course.title, `${course.duration || ""}  ·  ${course.difficulty || ""}`);
-
   y = writeSectionTitle(doc, "Syllabus", y);
 
   course.syllabus?.forEach((week) => {
@@ -76,11 +78,9 @@ export function generateSyllabusPDF(course) {
     doc.text(week.week, MARGIN, y);
     doc.setFont("helvetica", "normal");
     y += 6;
-
     week.topics?.forEach((topic) => {
       y = writeWrappedText(doc, `•  ${topic}`, MARGIN + 4, y, { fontSize: 11, lineHeight: 6 });
     });
-
     y += 4;
   });
 
@@ -90,7 +90,6 @@ export function generateSyllabusPDF(course) {
 export function generateStudyMaterialPDF(course) {
   const doc = createDoc();
   let y = addHeader(doc, course.title, "Study Material");
-
   const sm = course.studyMaterial || {};
 
   if (sm.summary) {
@@ -100,7 +99,7 @@ export function generateStudyMaterialPDF(course) {
   }
 
   const renderList = (label, items) => {
-    if (!items || items.length === 0) return;
+    if (!items?.length) return;
     y = writeSectionTitle(doc, label, y);
     items.forEach((item) => {
       y = writeWrappedText(doc, `•  ${item}`, MARGIN, y);
@@ -108,36 +107,25 @@ export function generateStudyMaterialPDF(course) {
     y += 4;
   };
 
-  renderList("Key Concepts", sm.keyConcepts);
-  renderList("Definitions", sm.definitions);
-  renderList("Real-World Examples", sm.realWorldExamples);
-  renderList("Interview Questions", sm.interviewQuestions);
-  renderList("Further Reading", sm.furtherReading);
+  renderList("Key Concepts",        sm.keyConcepts);
+  renderList("Definitions",         sm.definitions);
+  renderList("Real-World Examples",  sm.realWorldExamples);
+  renderList("Interview Questions",  sm.interviewQuestions);
+  renderList("Further Reading",      sm.furtherReading);
 
   doc.save(`${course.title.replace(/\s+/g, "_")}_Study_Material.pdf`);
 }
 
 export function generateQuestionPaperPDF(course, assessment) {
   const doc = createDoc();
-  let y = addHeader(
-    doc,
-    course.title,
-    `Question Paper  ·  Total Marks: ${assessment.totalMarks}`
-  );
+  let y = addHeader(doc, course.title, `Question Paper  ·  Total Marks: ${assessment.totalMarks}`);
 
   if (assessment.mcqs?.length > 0) {
     y = writeSectionTitle(doc, `Section A — Multiple Choice (${assessment.config.mcqMarks} marks each)`, y);
-
     assessment.mcqs.forEach((mcq, i) => {
       y = writeWrappedText(doc, `${i + 1}. ${mcq.question}`, MARGIN, y, { fontSize: 11 });
       mcq.options?.forEach((opt, oi) => {
-        y = writeWrappedText(
-          doc,
-          `${String.fromCharCode(65 + oi)}. ${opt}`,
-          MARGIN + 6,
-          y,
-          { fontSize: 10.5, lineHeight: 5.5 }
-        );
+        y = writeWrappedText(doc, `${String.fromCharCode(65 + oi)}. ${opt}`, MARGIN + 6, y, { fontSize: 10.5, lineHeight: 5.5 });
       });
       y += 3;
     });
@@ -164,11 +152,7 @@ export function generateQuestionPaperPDF(course, assessment) {
 
 export function generateAnswerKeyPDF(course, assessment) {
   const doc = createDoc();
-  let y = addHeader(
-    doc,
-    course.title,
-    `Answer Key  ·  Total Marks: ${assessment.totalMarks}`
-  );
+  let y = addHeader(doc, course.title, `Answer Key  ·  Total Marks: ${assessment.totalMarks}`);
 
   if (assessment.mcqs?.length > 0) {
     y = writeSectionTitle(doc, "Section A — Multiple Choice", y);
@@ -197,4 +181,119 @@ export function generateAnswerKeyPDF(course, assessment) {
   }
 
   doc.save(`${course.title.replace(/\s+/g, "_")}_Answer_Key.pdf`);
+}
+
+// ── ✅ NEW — Assignment PDF exports ─────────────────────────
+
+// Question paper (no answers)
+export function generateAssignmentPDF(course, assignment) {
+  const doc = createDoc();
+  let y = addHeader(
+    doc,
+    assignment.title,
+    `${course.title}  ·  Total Marks: ${assignment.totalMarks}${
+      assignment.dueDate
+        ? `  ·  Due: ${new Date(assignment.dueDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+        : ""
+    }`
+  );
+
+  // Group questions by type
+  const mcqs   = assignment.questions?.filter((q) => q.type === "mcq")   || [];
+  const shorts = assignment.questions?.filter((q) => q.type === "short") || [];
+  const longs  = assignment.questions?.filter((q) => q.type === "long")  || [];
+
+  // Keep a running question counter across sections
+  let qNum = 1;
+
+  if (mcqs.length > 0) {
+    y = writeSectionTitle(doc, "Section A — Multiple Choice", y);
+    mcqs.forEach((q) => {
+      y = writeWrappedText(doc, `${qNum}. ${q.question}`, MARGIN, y, { fontSize: 11 });
+      q.options?.forEach((opt, oi) => {
+        y = writeWrappedText(
+          doc,
+          `${String.fromCharCode(65 + oi)}. ${opt}`,
+          MARGIN + 6, y,
+          { fontSize: 10.5, lineHeight: 5.5 }
+        );
+      });
+      y += 3;
+      qNum++;
+    });
+  }
+
+  if (shorts.length > 0) {
+    y = writeSectionTitle(doc, "Section B — Short Questions", y);
+    shorts.forEach((q) => {
+      y = writeWrappedText(doc, `${qNum}. ${q.question}`, MARGIN, y, { fontSize: 11 });
+      y += 3;
+      qNum++;
+    });
+  }
+
+  if (longs.length > 0) {
+    y = writeSectionTitle(doc, "Section C — Long Questions", y);
+    longs.forEach((q) => {
+      y = writeWrappedText(doc, `${qNum}. ${q.question}`, MARGIN, y, { fontSize: 11 });
+      y += 3;
+      qNum++;
+    });
+  }
+
+  // Mixed (no type grouping needed — already sequential above)
+  // If all same type, still works fine.
+
+  doc.save(`${assignment.title.replace(/\s+/g, "_")}_Assignment.pdf`);
+}
+
+// Answer key (with model answers)
+export function generateAssignmentAnswerKeyPDF(course, assignment) {
+  const doc = createDoc();
+  let y = addHeader(
+    doc,
+    `${assignment.title} — Answer Key`,
+    `${course.title}  ·  Total Marks: ${assignment.totalMarks}`
+  );
+
+  const mcqs   = assignment.questions?.filter((q) => q.type === "mcq")   || [];
+  const shorts = assignment.questions?.filter((q) => q.type === "short") || [];
+  const longs  = assignment.questions?.filter((q) => q.type === "long")  || [];
+
+  let qNum = 1;
+
+  if (mcqs.length > 0) {
+    y = writeSectionTitle(doc, "Section A — Multiple Choice", y);
+    mcqs.forEach((q) => {
+      y = writeWrappedText(doc, `${qNum}. ${q.correctAnswer || "—"}`, MARGIN, y, { fontSize: 11 });
+      qNum++;
+    });
+    y += 4;
+  }
+
+  if (shorts.length > 0) {
+    y = writeSectionTitle(doc, "Section B — Short Questions", y);
+    shorts.forEach((q) => {
+      y = writeWrappedText(doc, `${qNum}. ${q.question}`, MARGIN, y, { fontSize: 11 });
+      if (q.modelAnswer) {
+        y = writeWrappedText(doc, q.modelAnswer, MARGIN + 6, y, { fontSize: 10.5, lineHeight: 5.5 });
+      }
+      y += 3;
+      qNum++;
+    });
+  }
+
+  if (longs.length > 0) {
+    y = writeSectionTitle(doc, "Section C — Long Questions", y);
+    longs.forEach((q) => {
+      y = writeWrappedText(doc, `${qNum}. ${q.question}`, MARGIN, y, { fontSize: 11 });
+      if (q.modelAnswer) {
+        y = writeWrappedText(doc, q.modelAnswer, MARGIN + 6, y, { fontSize: 10.5, lineHeight: 5.5 });
+      }
+      y += 3;
+      qNum++;
+    });
+  }
+
+  doc.save(`${assignment.title.replace(/\s+/g, "_")}_Answer_Key.pdf`);
 }
