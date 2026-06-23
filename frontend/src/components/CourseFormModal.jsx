@@ -31,7 +31,7 @@ function CourseFormModal({ onClose, onSubmit, loading }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="rise-in bg-[#1C1A33] border border-white/10 shadow-2xl rounded-3xl p-8 w-full max-w-md">
+      <div className="rise-in bg-[#1C1A33] border border-white/10 shadow-2xl rounded-3xl p-6 sm:p-8 w-full max-w-md">
 
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-display text-xl font-bold text-white">
@@ -55,7 +55,7 @@ function CourseFormModal({ onClose, onSubmit, loading }) {
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
               placeholder="e.g. JavaScript Promises"
-              className="px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
+              className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
             />
           </div>
 
@@ -67,12 +67,12 @@ function CourseFormModal({ onClose, onSubmit, loading }) {
               value={audience}
               onChange={(e) => setAudience(e.target.value)}
               placeholder="e.g. BSCS Students"
-              className="px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
+              className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
             />
           </div>
 
-          <div className="flex gap-3">
-            <div className="flex-1 flex flex-col gap-1.5">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
               <label className="text-[#A9A4C2] text-xs font-medium uppercase tracking-wide">
                 Duration
               </label>
@@ -80,18 +80,18 @@ function CourseFormModal({ onClose, onSubmit, loading }) {
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
                 placeholder="e.g. 8 Weeks"
-                className="px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
               />
             </div>
 
-            <div className="flex-1 flex flex-col gap-1.5">
+            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
               <label className="text-[#A9A4C2] text-xs font-medium uppercase tracking-wide">
                 Difficulty
               </label>
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
+                className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
               >
                 <option className="bg-[#1C1A33]" value="Beginner">Beginner</option>
                 <option className="bg-[#1C1A33]" value="Intermediate">Intermediate</option>

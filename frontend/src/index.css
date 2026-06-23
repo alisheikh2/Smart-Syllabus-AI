@@ -6,3 +6,12 @@
 }
 
 /* existing animations yahan rahein */
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  /* eslint-disable-next-line */
+  scrollbar-width: none; /* Modern browsers; older browsers will show default scrollbar */
+}

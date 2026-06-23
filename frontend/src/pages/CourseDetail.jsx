@@ -13,13 +13,13 @@ import {
   deleteAssignment,
 } from "../services/assignmentService";
 import { useAuth } from "../hooks/useAuth";
-import AssessmentFormModal   from "../components/AssessmentFormModal";
-import AssignmentFormModal   from "../components/AssignmentFormModal";
-import EditableSyllabus      from "../components/EditableSyllabus";
+import AssessmentFormModal from "../components/AssessmentFormModal";
+import AssignmentFormModal from "../components/AssignmentFormModal";
+import EditableSyllabus from "../components/EditableSyllabus";
 import EditableStudyMaterial from "../components/EditableStudyMaterial";
-import EditableAssessment    from "../components/EditableAssessment";
-import EditableAssignment    from "../components/EditableAssignment";
-import Toast                 from "../components/Toast";
+import EditableAssessment from "../components/EditableAssessment";
+import EditableAssignment from "../components/EditableAssignment";
+import Toast from "../components/Toast";
 import {
   generateSyllabusPDF,
   generateStudyMaterialPDF,
@@ -33,8 +33,12 @@ import {
 const DownloadIcon = () => (
   <svg
     className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-y-0.5"
-    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
   >
     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
     <polyline points="7 10 12 15 17 10" />
@@ -44,14 +48,14 @@ const DownloadIcon = () => (
 
 // ─────────────────────────────────────────────
 function CourseDetail() {
-  const { id }   = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
 
   // ── Course ──
-  const [course,  setCourse]  = useState(null);
+  const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState("");
+  const [error, setError] = useState("");
 
   // ── Tabs ──
   const [activeTab, setActiveTab] = useState("syllabus");
@@ -60,24 +64,24 @@ function CourseDetail() {
   const [editMode, setEditMode] = useState(false);
 
   // ── Assessment ──
-  const [assessments,          setAssessments]          = useState([]);
-  const [loadingAssessments,   setLoadingAssessments]   = useState(true);
-  const [showAssessmentModal,  setShowAssessmentModal]  = useState(false);
+  const [assessments, setAssessments] = useState([]);
+  const [loadingAssessments, setLoadingAssessments] = useState(true);
+  const [showAssessmentModal, setShowAssessmentModal] = useState(false);
   const [generatingAssessment, setGeneratingAssessment] = useState(false);
-  const [activeAssessment,     setActiveAssessment]     = useState(null);
+  const [activeAssessment, setActiveAssessment] = useState(null);
   const [activeAssessmentView, setActiveAssessmentView] = useState("paper");
 
   // ── Assignment ──
-  const [assignments,          setAssignments]          = useState([]);
-  const [loadingAssignments,   setLoadingAssignments]   = useState(true);
-  const [showAssignmentModal,  setShowAssignmentModal]  = useState(false);
+  const [assignments, setAssignments] = useState([]);
+  const [loadingAssignments, setLoadingAssignments] = useState(true);
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [generatingAssignment, setGeneratingAssignment] = useState(false);
-  const [activeAssignment,     setActiveAssignment]     = useState(null);
-  const [assignmentView,       setAssignmentView]       = useState("paper");
+  const [activeAssignment, setActiveAssignment] = useState(null);
+  const [assignmentView, setAssignmentView] = useState("paper");
 
   // ── Toasts ──
   const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg,   setErrorMsg]   = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   // ─────────────────────────────────────────────
   // Load course
@@ -89,7 +93,8 @@ function CourseDetail() {
         const data = await getCourseById(id);
         if (isMounted) {
           const c = data.course;
-          if (Array.isArray(c.studyMaterial)) c.studyMaterial = c.studyMaterial[0] || {};
+          if (Array.isArray(c.studyMaterial))
+            c.studyMaterial = c.studyMaterial[0] || {};
           setCourse(c);
         }
       } catch {
@@ -99,7 +104,9 @@ function CourseDetail() {
       }
     };
     loadCourse();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   // ─────────────────────────────────────────────
@@ -124,7 +131,9 @@ function CourseDetail() {
       }
     };
     load();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   // ─────────────────────────────────────────────
@@ -137,7 +146,8 @@ function CourseDetail() {
         const data = await getAssignmentsByCourse(id);
         if (isMounted) {
           setAssignments(data.assignments);
-          if (data.assignments.length > 0) setActiveAssignment(data.assignments[0]);
+          if (data.assignments.length > 0)
+            setActiveAssignment(data.assignments[0]);
         }
       } catch (err) {
         console.error("Failed to load assignments:", err.message);
@@ -146,7 +156,9 @@ function CourseDetail() {
       }
     };
     load();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   // ─────────────────────────────────────────────
@@ -165,7 +177,10 @@ function CourseDetail() {
   const handleSaveStudyMaterial = async (updatedSm) => {
     try {
       const data = await updateCourse(id, { studyMaterial: updatedSm });
-      setCourse((prev) => ({ ...prev, studyMaterial: data.course.studyMaterial }));
+      setCourse((prev) => ({
+        ...prev,
+        studyMaterial: data.course.studyMaterial,
+      }));
       setSuccessMsg("Study material saved!");
     } catch {
       setErrorMsg("Failed to save study material. Try again.");
@@ -192,7 +207,7 @@ function CourseDetail() {
     try {
       const data = await updateAssessment(activeAssessment._id, updates);
       setAssessments((prev) =>
-        prev.map((a) => (a._id === activeAssessment._id ? data.assessment : a))
+        prev.map((a) => (a._id === activeAssessment._id ? data.assessment : a)),
       );
       // ✅ Active assessment bhi update karo
       setActiveAssessment(data.assessment);
@@ -211,7 +226,9 @@ function CourseDetail() {
       setActiveAssessmentView("paper");
       setSuccessMsg("Assessment generated!");
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || "Failed to generate assessment.");
+      setErrorMsg(
+        err.response?.data?.message || "Failed to generate assessment.",
+      );
     } finally {
       setGeneratingAssessment(false);
     }
@@ -234,15 +251,22 @@ function CourseDetail() {
   const handleGenerateAssignment = async (formData) => {
     setGeneratingAssignment(true);
     try {
-      const data    = await createAssignment({ ...formData, courseId: id, email: user.email });
+      const data = await createAssignment({
+        ...formData,
+        courseId: id,
+        email: user.email,
+      });
       const updated = await refreshAssignments();
-      const created = updated.find((a) => a._id === data.assignment._id) || data.assignment;
+      const created =
+        updated.find((a) => a._id === data.assignment._id) || data.assignment;
       setActiveAssignment(created);
       setAssignmentView("paper");
       setShowAssignmentModal(false);
       setSuccessMsg("Assignment created!");
     } catch (err) {
-      setErrorMsg(err.response?.data?.message || "Failed to generate assignment.");
+      setErrorMsg(
+        err.response?.data?.message || "Failed to generate assignment.",
+      );
     } finally {
       setGeneratingAssignment(false);
     }
@@ -252,7 +276,7 @@ function CourseDetail() {
     try {
       const data = await updateAssignment(activeAssignment._id, updates);
       setAssignments((prev) =>
-        prev.map((a) => (a._id === activeAssignment._id ? data.assignment : a))
+        prev.map((a) => (a._id === activeAssignment._id ? data.assignment : a)),
       );
       setActiveAssignment(data.assignment);
       setSuccessMsg("Assignment saved!");
@@ -293,7 +317,9 @@ function CourseDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#15132B]">
         <div className="text-center">
-          <p className="text-white font-medium mb-4">{error || "Course not found."}</p>
+          <p className="text-white font-medium mb-4">
+            {error || "Course not found."}
+          </p>
           <button
             onClick={() => navigate("/")}
             className="text-[#7C5CFF] hover:text-[#9B82FF] text-sm font-medium"
@@ -309,10 +335,10 @@ function CourseDetail() {
   // Derived
   // ─────────────────────────────────────────────
   const tabs = [
-    { id: "syllabus",   label: "Syllabus"      },
-    { id: "material",   label: "Study material" },
-    { id: "assessment", label: "Assessment"     },
-    { id: "assignment", label: "Assignments"    },
+    { id: "syllabus", label: "Syllabus" },
+    { id: "material", label: "Study material" },
+    { id: "assessment", label: "Assessment" },
+    { id: "assignment", label: "Assignments" },
   ];
 
   const downloadButtonClass =
@@ -327,18 +353,17 @@ function CourseDetail() {
   // ─────────────────────────────────────────────
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#15132B] ruled-bg">
-
       {/* Blob */}
       <div
         className="absolute w-[480px] h-[480px] rounded-full blob-a opacity-15 blur-3xl pointer-events-none"
         style={{
           background: "radial-gradient(circle, #7C5CFF, transparent 70%)",
-          top: "-10%", right: "-10%",
+          top: "-10%",
+          right: "-10%",
         }}
       />
 
       <div className="relative z-10 max-w-4xl mx-auto px-6 py-8">
-
         {/* ── Back ── */}
         <button
           onClick={() => navigate("/")}
@@ -385,14 +410,14 @@ function CourseDetail() {
 
         {/* ── Tabs ── */}
         <div
-          className="rise-in flex gap-1 border-b border-white/10 mb-6"
+          className="rise-in flex gap-1 border-b border-white/10 mb-6 overflow-x-auto scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0"
           style={{ animationDelay: "0.1s" }}
         >
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative px-5 py-3 text-sm font-medium transition-colors duration-200 ${
+              className={`relative px-5 py-3 text-sm font-medium whitespace-nowrap shrink-0 transition-colors duration-200 ${
                 activeTab === tab.id
                   ? "text-white"
                   : "text-[#A9A4C2] hover:text-white"
@@ -476,22 +501,26 @@ function CourseDetail() {
               <div className="bg-[#FAF8F3]/[0.06] border border-white/10 rounded-2xl p-6 flex flex-col gap-6">
                 {course.studyMaterial.summary && (
                   <div>
-                    <h4 className="text-white font-medium mb-2 text-sm">Summary</h4>
+                    <h4 className="text-white font-medium mb-2 text-sm">
+                      Summary
+                    </h4>
                     <p className="text-[#A9A4C2] text-sm leading-relaxed">
                       {course.studyMaterial.summary}
                     </p>
                   </div>
                 )}
                 {[
-                  { key: "keyConcepts",        label: "Key concepts"        },
-                  { key: "definitions",        label: "Definitions"         },
-                  { key: "realWorldExamples",  label: "Real-world examples" },
+                  { key: "keyConcepts", label: "Key concepts" },
+                  { key: "definitions", label: "Definitions" },
+                  { key: "realWorldExamples", label: "Real-world examples" },
                   { key: "interviewQuestions", label: "Interview questions" },
-                  { key: "furtherReading",     label: "Further reading"     },
+                  { key: "furtherReading", label: "Further reading" },
                 ].map(({ key, label }) =>
                   course.studyMaterial[key]?.length > 0 ? (
                     <div key={key}>
-                      <h4 className="text-white font-medium mb-2 text-sm">{label}</h4>
+                      <h4 className="text-white font-medium mb-2 text-sm">
+                        {label}
+                      </h4>
                       <ul className="flex flex-col gap-1.5">
                         {course.studyMaterial[key].map((item, i) => (
                           <li
@@ -504,7 +533,7 @@ function CourseDetail() {
                         ))}
                       </ul>
                     </div>
-                  ) : null
+                  ) : null,
                 )}
               </div>
             )}
@@ -521,7 +550,6 @@ function CourseDetail() {
                 <div className="w-4 h-4 border-2 border-[#7C5CFF]/30 border-t-[#7C5CFF] rounded-full animate-spin" />
                 Loading assessments...
               </div>
-
             ) : assessments.length === 0 ? (
               /* ── Empty state ── */
               <div className="bg-[#FAF8F3]/[0.04] border border-white/10 rounded-2xl p-10 text-center">
@@ -536,13 +564,10 @@ function CourseDetail() {
                   + Generate assessment
                 </button>
               </div>
-
             ) : (
               <div className="flex gap-4 flex-col md:flex-row">
-
                 {/* ── Left: Assessment history list ── */}
                 <div className="md:w-56 shrink-0 flex flex-col gap-2">
-
                   {/* Generate new */}
                   <button
                     onClick={() => setShowAssessmentModal(true)}
@@ -567,7 +592,9 @@ function CourseDetail() {
                     >
                       <div className="flex items-center justify-between gap-2 mb-1">
                         <p className="font-medium text-xs truncate">
-                          {idx === 0 ? "Latest" : `Version ${assessments.length - idx}`}
+                          {idx === 0
+                            ? "Latest"
+                            : `Version ${assessments.length - idx}`}
                         </p>
                         {idx === 0 && (
                           <span className="text-[10px] bg-[#7C5CFF]/30 text-[#7C5CFF] px-1.5 py-0.5 rounded-md font-medium shrink-0">
@@ -575,9 +602,7 @@ function CourseDetail() {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs opacity-60">
-                        {a.totalMarks} marks
-                      </p>
+                      <p className="text-xs opacity-60">{a.totalMarks} marks</p>
                       {/* MCQ / Short / Long count */}
                       <div className="flex gap-1 mt-1 flex-wrap">
                         {a.config?.mcqCount > 0 && (
@@ -599,8 +624,8 @@ function CourseDetail() {
                       <p className="text-[10px] opacity-40 mt-1">
                         {new Date(a.createdAt).toLocaleDateString("en-US", {
                           month: "short",
-                          day:   "numeric",
-                          year:  "numeric",
+                          day: "numeric",
+                          year: "numeric",
                         })}
                       </p>
                     </button>
@@ -610,7 +635,6 @@ function CourseDetail() {
                 {/* ── Right: Active assessment detail ── */}
                 {activeAssessment && (
                   <div className="flex-1 min-w-0">
-
                     {/* Meta header */}
                     <div className="bg-[#FAF8F3]/[0.06] border border-white/10 rounded-2xl p-4 mb-4">
                       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -643,8 +667,12 @@ function CourseDetail() {
                             </span>
                           )}
                           <span className="text-xs text-[#A9A4C2]/50 bg-white/5 px-2 py-0.5 rounded-md">
-                            {new Date(activeAssessment.createdAt).toLocaleDateString("en-US", {
-                              month: "short", day: "numeric", year: "numeric",
+                            {new Date(
+                              activeAssessment.createdAt,
+                            ).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
                             })}
                           </span>
                         </div>
@@ -672,21 +700,28 @@ function CourseDetail() {
                                     : "bg-white/[0.06] text-[#A9A4C2] hover:text-white"
                                 }`}
                               >
-                                {v === "paper" ? "Question paper" : "Answer key"}
+                                {v === "paper"
+                                  ? "Question paper"
+                                  : "Answer key"}
                               </button>
                             ))}
                           </div>
                           <button
                             onClick={() =>
                               activeAssessmentView === "paper"
-                                ? generateQuestionPaperPDF(course, activeAssessment)
+                                ? generateQuestionPaperPDF(
+                                    course,
+                                    activeAssessment,
+                                  )
                                 : generateAnswerKeyPDF(course, activeAssessment)
                             }
                             className={downloadButtonClass}
                           >
                             <DownloadIcon />
                             Download{" "}
-                            {activeAssessmentView === "paper" ? "Question Paper" : "Answer Key"}
+                            {activeAssessmentView === "paper"
+                              ? "Question Paper"
+                              : "Answer Key"}
                           </button>
                         </div>
 
@@ -696,17 +731,25 @@ function CourseDetail() {
                             {activeAssessment.mcqs?.length > 0 && (
                               <div>
                                 <h4 className="text-white font-medium mb-3 text-sm">
-                                  Section A — Multiple choice ({activeAssessment.config?.mcqMarks || 1} marks each)
+                                  Section A — Multiple choice (
+                                  {activeAssessment.config?.mcqMarks || 1} marks
+                                  each)
                                 </h4>
                                 <div className="flex flex-col gap-6">
                                   {activeAssessment.mcqs.map((mcq, i) => (
-                                    <div key={i} className="border-b border-white/5 pb-4 last:border-0">
+                                    <div
+                                      key={i}
+                                      className="border-b border-white/5 pb-4 last:border-0"
+                                    >
                                       <p className="text-[#A9A4C2] text-base font-medium mb-3">
                                         {i + 1}. {mcq.question}
                                       </p>
                                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-4">
                                         {mcq.options?.map((opt, oi) => (
-                                          <div key={oi} className="text-[#A9A4C2]/80 text-sm">
+                                          <div
+                                            key={oi}
+                                            className="text-[#A9A4C2]/80 text-sm"
+                                          >
                                             <span className="font-semibold mr-1">
                                               {String.fromCharCode(65 + oi)}.
                                             </span>
@@ -723,14 +766,21 @@ function CourseDetail() {
                             {activeAssessment.shortQuestions?.length > 0 && (
                               <div>
                                 <h4 className="text-white font-medium mb-3 text-sm">
-                                  Section B — Short questions ({activeAssessment.config?.shortMarks || 5} marks each)
+                                  Section B — Short questions (
+                                  {activeAssessment.config?.shortMarks || 5}{" "}
+                                  marks each)
                                 </h4>
                                 <div className="flex flex-col gap-3 pl-2">
-                                  {activeAssessment.shortQuestions.map((q, i) => (
-                                    <div key={i} className="text-[#A9A4C2] text-sm leading-relaxed">
-                                      {i + 1}. {q.question}
-                                    </div>
-                                  ))}
+                                  {activeAssessment.shortQuestions.map(
+                                    (q, i) => (
+                                      <div
+                                        key={i}
+                                        className="text-[#A9A4C2] text-sm leading-relaxed"
+                                      >
+                                        {i + 1}. {q.question}
+                                      </div>
+                                    ),
+                                  )}
                                 </div>
                               </div>
                             )}
@@ -738,14 +788,21 @@ function CourseDetail() {
                             {activeAssessment.longQuestions?.length > 0 && (
                               <div>
                                 <h4 className="text-white font-medium mb-3 text-sm">
-                                  Section C — Long questions ({activeAssessment.config?.longMarks || 10} marks each)
+                                  Section C — Long questions (
+                                  {activeAssessment.config?.longMarks || 10}{" "}
+                                  marks each)
                                 </h4>
                                 <div className="flex flex-col gap-3 pl-2">
-                                  {activeAssessment.longQuestions.map((q, i) => (
-                                    <div key={i} className="text-[#A9A4C2] text-sm leading-relaxed">
-                                      {i + 1}. {q.question}
-                                    </div>
-                                  ))}
+                                  {activeAssessment.longQuestions.map(
+                                    (q, i) => (
+                                      <div
+                                        key={i}
+                                        className="text-[#A9A4C2] text-sm leading-relaxed"
+                                      >
+                                        {i + 1}. {q.question}
+                                      </div>
+                                    ),
+                                  )}
                                 </div>
                               </div>
                             )}
@@ -762,8 +819,13 @@ function CourseDetail() {
                                 </h4>
                                 <div className="flex flex-col gap-2 pl-2">
                                   {activeAssessment.mcqs.map((mcq, i) => (
-                                    <p key={i} className="text-[#A9A4C2] text-sm">
-                                      <span className="text-white">{i + 1}.</span>{" "}
+                                    <p
+                                      key={i}
+                                      className="text-[#A9A4C2] text-sm"
+                                    >
+                                      <span className="text-white">
+                                        {i + 1}.
+                                      </span>{" "}
                                       <span className="text-[#7C5CFF] font-medium">
                                         {mcq.correctAnswer}
                                       </span>
@@ -779,16 +841,18 @@ function CourseDetail() {
                                   Section B — Short questions
                                 </h4>
                                 <div className="flex flex-col gap-4 pl-2">
-                                  {activeAssessment.shortQuestions.map((q, i) => (
-                                    <div key={i}>
-                                      <p className="text-white text-sm mb-1">
-                                        {i + 1}. {q.question}
-                                      </p>
-                                      <div className="text-[#A9A4C2] text-sm pl-4 border-l border-[#7C5CFF]/30 py-0.5">
-                                        {q.modelAnswer}
+                                  {activeAssessment.shortQuestions.map(
+                                    (q, i) => (
+                                      <div key={i}>
+                                        <p className="text-white text-sm mb-1">
+                                          {i + 1}. {q.question}
+                                        </p>
+                                        <div className="text-[#A9A4C2] text-sm pl-4 border-l border-[#7C5CFF]/30 py-0.5">
+                                          {q.modelAnswer}
+                                        </div>
                                       </div>
-                                    </div>
-                                  ))}
+                                    ),
+                                  )}
                                 </div>
                               </div>
                             )}
@@ -799,16 +863,18 @@ function CourseDetail() {
                                   Section C — Long questions
                                 </h4>
                                 <div className="flex flex-col gap-4 pl-2">
-                                  {activeAssessment.longQuestions.map((q, i) => (
-                                    <div key={i}>
-                                      <p className="text-white text-sm mb-1">
-                                        {i + 1}. {q.question}
-                                      </p>
-                                      <div className="text-[#A9A4C2] text-sm pl-4 border-l border-[#7C5CFF]/30 py-0.5 leading-relaxed">
-                                        {q.modelAnswer}
+                                  {activeAssessment.longQuestions.map(
+                                    (q, i) => (
+                                      <div key={i}>
+                                        <p className="text-white text-sm mb-1">
+                                          {i + 1}. {q.question}
+                                        </p>
+                                        <div className="text-[#A9A4C2] text-sm pl-4 border-l border-[#7C5CFF]/30 py-0.5 leading-relaxed">
+                                          {q.modelAnswer}
+                                        </div>
                                       </div>
-                                    </div>
-                                  ))}
+                                    ),
+                                  )}
                                 </div>
                               </div>
                             )}
@@ -835,7 +901,6 @@ function CourseDetail() {
               </div>
             ) : (
               <div className="flex flex-col gap-5">
-
                 {/* Top bar */}
                 <div className="flex items-center justify-between">
                   <h3 className="text-white font-medium text-sm">
@@ -855,7 +920,9 @@ function CourseDetail() {
                 {assignments.length === 0 ? (
                   <div className="bg-[#FAF8F3]/[0.04] border border-white/10 rounded-2xl p-10 text-center">
                     <div className="text-4xl mb-3">📋</div>
-                    <p className="text-white font-medium mb-1">No assignments yet</p>
+                    <p className="text-white font-medium mb-1">
+                      No assignments yet
+                    </p>
                     <p className="text-[#A9A4C2] text-sm mb-5">
                       Create an assignment from your course syllabus.
                     </p>
@@ -868,7 +935,6 @@ function CourseDetail() {
                   </div>
                 ) : (
                   <div className="flex gap-4 flex-col md:flex-row">
-
                     {/* ── Left: assignment list ── */}
                     <div className="md:w-56 shrink-0 flex flex-col gap-2">
                       {assignments.map((a) => (
@@ -886,14 +952,15 @@ function CourseDetail() {
                         >
                           <p className="font-medium truncate">{a.title}</p>
                           <p className="text-xs opacity-60 mt-0.5">
-                            {a.questions?.length || 0} questions · {a.totalMarks} marks
+                            {a.questions?.length || 0} questions ·{" "}
+                            {a.totalMarks} marks
                           </p>
                           {a.dueDate && (
                             <p className="text-xs opacity-50 mt-0.5">
                               Due:{" "}
                               {new Date(a.dueDate).toLocaleDateString("en-US", {
                                 month: "short",
-                                day:   "numeric",
+                                day: "numeric",
                               })}
                             </p>
                           )}
@@ -904,7 +971,6 @@ function CourseDetail() {
                     {/* ── Right: active assignment detail ── */}
                     {activeAssignment && (
                       <div className="flex-1 min-w-0">
-
                         {/* Meta header */}
                         <div className="bg-[#FAF8F3]/[0.06] border border-white/10 rounded-2xl p-5 mb-4">
                           <div className="flex items-start justify-between gap-3">
@@ -914,7 +980,8 @@ function CourseDetail() {
                               </h4>
                               <div className="flex gap-2 flex-wrap">
                                 <span className="text-xs text-[#A9A4C2] bg-white/5 px-2 py-0.5 rounded-md">
-                                  {activeAssignment.questions?.length || 0} questions
+                                  {activeAssignment.questions?.length || 0}{" "}
+                                  questions
                                 </span>
                                 <span className="text-xs text-[#A9A4C2] bg-white/5 px-2 py-0.5 rounded-md">
                                   {activeAssignment.totalMarks} marks
@@ -922,10 +989,13 @@ function CourseDetail() {
                                 {activeAssignment.dueDate && (
                                   <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-md">
                                     Due:{" "}
-                                    {new Date(activeAssignment.dueDate).toLocaleDateString(
-                                      "en-US",
-                                      { month: "short", day: "numeric", year: "numeric" }
-                                    )}
+                                    {new Date(
+                                      activeAssignment.dueDate,
+                                    ).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })}
                                   </span>
                                 )}
                                 {activeAssignment.coveredWeeks?.length > 0 && (
@@ -938,7 +1008,9 @@ function CourseDetail() {
 
                             {/* Delete */}
                             <button
-                              onClick={() => handleDeleteAssignment(activeAssignment._id)}
+                              onClick={() =>
+                                handleDeleteAssignment(activeAssignment._id)
+                              }
                               className="text-[#FF6B5E]/60 hover:text-[#FF6B5E] text-xs px-3 py-1.5 rounded-lg border border-transparent hover:border-[#FF6B5E]/30 hover:bg-[#FF6B5E]/10 transition-all duration-200 shrink-0"
                             >
                               Delete
@@ -975,21 +1047,31 @@ function CourseDetail() {
                               <button
                                 onClick={() =>
                                   assignmentView === "paper"
-                                    ? generateAssignmentPDF(course, activeAssignment)
-                                    : generateAssignmentAnswerKeyPDF(course, activeAssignment)
+                                    ? generateAssignmentPDF(
+                                        course,
+                                        activeAssignment,
+                                      )
+                                    : generateAssignmentAnswerKeyPDF(
+                                        course,
+                                        activeAssignment,
+                                      )
                                 }
                                 className={downloadButtonClass}
                               >
                                 <DownloadIcon />
                                 Download{" "}
-                                {assignmentView === "paper" ? "Assignment" : "Answer Key"}
+                                {assignmentView === "paper"
+                                  ? "Assignment"
+                                  : "Answer Key"}
                               </button>
                             </div>
 
                             {/* Questions view */}
                             {assignmentView === "paper" && (
                               <div className="bg-[#FAF8F3]/[0.06] border border-white/10 rounded-2xl p-5 flex flex-col gap-5">
-                                {activeAssignment.questions?.filter((q) => q.type === "mcq").length > 0 && (
+                                {activeAssignment.questions?.filter(
+                                  (q) => q.type === "mcq",
+                                ).length > 0 && (
                                   <div>
                                     <h4 className="text-white font-medium mb-3 text-sm">
                                       Section A — Multiple Choice
@@ -998,18 +1080,28 @@ function CourseDetail() {
                                       {activeAssignment.questions
                                         .filter((q) => q.type === "mcq")
                                         .map((q, i) => (
-                                          <div key={i} className="border-b border-white/5 pb-4 last:border-0">
+                                          <div
+                                            key={i}
+                                            className="border-b border-white/5 pb-4 last:border-0"
+                                          >
                                             <p className="text-[#A9A4C2] text-sm font-medium mb-2">
                                               {i + 1}. {q.question}
                                               <span className="ml-2 text-[#A9A4C2]/40 text-xs font-normal">
-                                                ({q.marks} mark{q.marks !== 1 ? "s" : ""})
+                                                ({q.marks} mark
+                                                {q.marks !== 1 ? "s" : ""})
                                               </span>
                                             </p>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5 pl-3">
                                               {q.options?.map((opt, oi) => (
-                                                <div key={oi} className="text-[#A9A4C2]/80 text-xs">
+                                                <div
+                                                  key={oi}
+                                                  className="text-[#A9A4C2]/80 text-xs"
+                                                >
                                                   <span className="font-semibold mr-1">
-                                                    {String.fromCharCode(65 + oi)}.
+                                                    {String.fromCharCode(
+                                                      65 + oi,
+                                                    )}
+                                                    .
                                                   </span>
                                                   {opt}
                                                 </div>
@@ -1021,7 +1113,9 @@ function CourseDetail() {
                                   </div>
                                 )}
 
-                                {activeAssignment.questions?.filter((q) => q.type === "short").length > 0 && (
+                                {activeAssignment.questions?.filter(
+                                  (q) => q.type === "short",
+                                ).length > 0 && (
                                   <div>
                                     <h4 className="text-white font-medium mb-3 text-sm">
                                       Section B — Short Questions
@@ -1030,7 +1124,10 @@ function CourseDetail() {
                                       {activeAssignment.questions
                                         .filter((q) => q.type === "short")
                                         .map((q, i) => (
-                                          <div key={i} className="text-[#A9A4C2] text-sm leading-relaxed">
+                                          <div
+                                            key={i}
+                                            className="text-[#A9A4C2] text-sm leading-relaxed"
+                                          >
                                             {i + 1}. {q.question}
                                             <span className="ml-2 text-[#A9A4C2]/40 text-xs">
                                               ({q.marks} marks)
@@ -1041,7 +1138,9 @@ function CourseDetail() {
                                   </div>
                                 )}
 
-                                {activeAssignment.questions?.filter((q) => q.type === "long").length > 0 && (
+                                {activeAssignment.questions?.filter(
+                                  (q) => q.type === "long",
+                                ).length > 0 && (
                                   <div>
                                     <h4 className="text-white font-medium mb-3 text-sm">
                                       Section C — Long Questions
@@ -1050,7 +1149,10 @@ function CourseDetail() {
                                       {activeAssignment.questions
                                         .filter((q) => q.type === "long")
                                         .map((q, i) => (
-                                          <div key={i} className="text-[#A9A4C2] text-sm leading-relaxed">
+                                          <div
+                                            key={i}
+                                            className="text-[#A9A4C2] text-sm leading-relaxed"
+                                          >
                                             {i + 1}. {q.question}
                                             <span className="ml-2 text-[#A9A4C2]/40 text-xs">
                                               ({q.marks} marks)
@@ -1066,7 +1168,9 @@ function CourseDetail() {
                             {/* Answer key view */}
                             {assignmentView === "key" && (
                               <div className="bg-[#FAF8F3]/[0.06] border border-white/10 rounded-2xl p-5 flex flex-col gap-5">
-                                {activeAssignment.questions?.filter((q) => q.type === "mcq").length > 0 && (
+                                {activeAssignment.questions?.filter(
+                                  (q) => q.type === "mcq",
+                                ).length > 0 && (
                                   <div>
                                     <h4 className="text-white font-medium mb-3 text-sm">
                                       Section A — Multiple Choice
@@ -1075,8 +1179,13 @@ function CourseDetail() {
                                       {activeAssignment.questions
                                         .filter((q) => q.type === "mcq")
                                         .map((q, i) => (
-                                          <p key={i} className="text-[#A9A4C2] text-sm">
-                                            <span className="text-white">{i + 1}.</span>{" "}
+                                          <p
+                                            key={i}
+                                            className="text-[#A9A4C2] text-sm"
+                                          >
+                                            <span className="text-white">
+                                              {i + 1}.
+                                            </span>{" "}
                                             <span className="text-[#7C5CFF] font-medium">
                                               {q.correctAnswer}
                                             </span>
@@ -1086,7 +1195,9 @@ function CourseDetail() {
                                   </div>
                                 )}
 
-                                {activeAssignment.questions?.filter((q) => q.type === "short").length > 0 && (
+                                {activeAssignment.questions?.filter(
+                                  (q) => q.type === "short",
+                                ).length > 0 && (
                                   <div>
                                     <h4 className="text-white font-medium mb-3 text-sm">
                                       Section B — Short Questions
@@ -1108,7 +1219,9 @@ function CourseDetail() {
                                   </div>
                                 )}
 
-                                {activeAssignment.questions?.filter((q) => q.type === "long").length > 0 && (
+                                {activeAssignment.questions?.filter(
+                                  (q) => q.type === "long",
+                                ).length > 0 && (
                                   <div>
                                     <h4 className="text-white font-medium mb-3 text-sm">
                                       Section C — Long Questions
@@ -1141,8 +1254,8 @@ function CourseDetail() {
             )}
           </div>
         )}
-
-      </div>{/* /container */}
+      </div>
+      {/* /container */}
 
       {/* ── Modals ── */}
       {showAssessmentModal && (
@@ -1164,9 +1277,16 @@ function CourseDetail() {
       )}
 
       {/* ── Toasts ── */}
-      <Toast message={successMsg} type="success" onDismiss={() => setSuccessMsg("")} />
-      <Toast message={errorMsg}   type="error"   onDismiss={() => setErrorMsg("")} />
-
+      <Toast
+        message={successMsg}
+        type="success"
+        onDismiss={() => setSuccessMsg("")}
+      />
+      <Toast
+        message={errorMsg}
+        type="error"
+        onDismiss={() => setErrorMsg("")}
+      />
     </div>
   );
 }
