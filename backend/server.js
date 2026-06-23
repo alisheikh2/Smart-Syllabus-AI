@@ -15,6 +15,9 @@ connectDB();
 
 app.use(cors());
 app.use(express.json());
+app.set("trust proxy", 1); // 🔥 ADD THIS LINE
+
+
 
 // Global limiter — sab routes
 app.use(globalLimiter);
