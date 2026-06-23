@@ -88,12 +88,15 @@ function Home() {
         style={{ background: "radial-gradient(circle, #FF6B5E, transparent 70%)", bottom: "-10%", left: "-5%" }}
       />
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6 py-8">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
 
         {/* Header */}
-        <div className="rise-in flex items-center justify-between mb-10" style={{ animationDelay: "0.05s" }}>
-          <div className="flex items-center gap-4">
-            <div className="relative">
+        <div
+          className="rise-in flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-10"
+          style={{ animationDelay: "0.05s" }}
+        >
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="relative flex-shrink-0">
               <div className="absolute inset-0 rounded-full bg-[#7C5CFF]/30 blur-lg" />
               {user?.photoURL ? (
                 <img
@@ -107,28 +110,28 @@ function Home() {
                 </div>
               )}
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="text-[#A9A4C2] text-xs font-medium tracking-widest uppercase">
                 Welcome back
               </p>
-              <h1 className="font-display text-xl font-bold text-white">
+              <h1 className="font-display text-xl font-bold text-white truncate">
                 {getName()}
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
             {/* ✅ Analytics button */}
             <button
               onClick={() => navigate("/analytics")}
-              className="bg-white/[0.06] border border-white/10 hover:border-[#7C5CFF]/40 hover:bg-[#7C5CFF]/10 transition-all duration-200 text-[#A9A4C2] hover:text-white px-4 py-2.5 rounded-xl font-medium text-sm"
+              className="flex-1 sm:flex-initial bg-white/[0.06] border border-white/10 hover:border-[#7C5CFF]/40 hover:bg-[#7C5CFF]/10 transition-all duration-200 text-[#A9A4C2] hover:text-white px-4 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap"
             >
               Analytics
             </button>
 
             <button
               onClick={logout}
-              className="bg-[#FF6B5E]/10 border border-[#FF6B5E]/30 hover:bg-[#FF6B5E] hover:border-[#FF6B5E] transition-all duration-200 text-[#FF6B5E] hover:text-white px-5 py-2.5 rounded-xl font-medium text-sm active:scale-[0.98]"
+              className="flex-1 sm:flex-initial bg-[#FF6B5E]/10 border border-[#FF6B5E]/30 hover:bg-[#FF6B5E] hover:border-[#FF6B5E] transition-all duration-200 text-[#FF6B5E] hover:text-white px-5 py-2.5 rounded-xl font-medium text-sm active:scale-[0.98] whitespace-nowrap"
             >
               Logout
             </button>
@@ -137,7 +140,7 @@ function Home() {
 
         {/* Stats bar */}
         <div
-          className="rise-in grid grid-cols-3 gap-4 mb-8"
+          className="rise-in grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8"
           style={{ animationDelay: "0.08s" }}
         >
           {[
@@ -153,9 +156,9 @@ function Home() {
           ].map((stat, i) => (
             <div
               key={i}
-              className="bg-[#FAF8F3]/[0.04] border border-white/10 rounded-2xl p-4 text-center"
+              className="bg-[#FAF8F3]/[0.04] border border-white/10 rounded-2xl p-4 text-center overflow-hidden"
             >
-              <p className="text-white font-display font-bold text-2xl">{stat.value}</p>
+              <p className="text-white font-display font-bold text-xl sm:text-2xl break-words">{stat.value}</p>
               <p className="text-[#A9A4C2] text-xs mt-1">{stat.label}</p>
             </div>
           ))}
@@ -163,11 +166,11 @@ function Home() {
 
         {/* Hero CTA */}
         <div
-          className="rise-in bg-[#FAF8F3]/[0.06] backdrop-blur-2xl border border-white/10 rounded-3xl p-8 mb-8 flex items-center justify-between"
+          className="rise-in bg-[#FAF8F3]/[0.06] backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5"
           style={{ animationDelay: "0.1s" }}
         >
           <div>
-            <h2 className="font-display text-2xl font-bold text-white mb-1">
+            <h2 className="font-display text-xl sm:text-2xl font-bold text-white mb-1">
               Build your next course
             </h2>
             <p className="text-[#A9A4C2] text-sm">
@@ -176,7 +179,7 @@ function Home() {
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-[0.98] whitespace-nowrap"
+            className="w-full sm:w-auto bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-[0.98] whitespace-nowrap"
           >
             + Create new course
           </button>
