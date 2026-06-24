@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const admin = require("firebase-admin");  // ← NEW
 require("dotenv").config();
 
 const connectDB        = require("./config/db");
@@ -11,21 +12,29 @@ const { aiLimiter, globalLimiter } = require("./middleware/rateLimiter");
 
 const app = express();
 
+// ✅ Firebase Admin Initialize — SABSE PEHLE
+admin.initializeApp({
+  credential: admin.credential.cert({
+    projectId:   process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey:  process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+  }),
+});
+
 connectDB();
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],  // ← Authorization ADD
+}));
 app.use(express.json());
-app.set("trust proxy", 1); // 🔥 ADD THIS LINE
+app.set("trust proxy", 1);
 
-
-
-// Global limiter — sab routes
+// Global limiter
 app.use(globalLimiter);
 
-app.use("/api/users", userRoutes);
-
-// ✅ FIX: AI limiter sirf POST routes par
-// GET (fetch data) par limit nahi
+app.use("/api/users",       userRoutes);
 app.use("/api/courses",     courseRoutes);
 app.use("/api/assessments", assessmentRoutes);
 app.use("/api/assignments", assignmentRoutes);

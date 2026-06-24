@@ -4,11 +4,12 @@ const { getCacheKey, getFromCache, setCache } = require("../middleware/cache");
 
 const getCourses = async (req, res) => {
   try {
-    const { email } = req.query;
-    if (!email) {
-      return res.status(400).json({ success: false, message: "Email is required" });
-    }
-    const courses = await Course.find({ createdBy: email }).sort({ createdAt: -1 });
+    // ✅ Email ab token se aayegi (req.user), query se nahi
+    const email = req.user.email;
+
+    const courses = await Course.find({ createdBy: email })
+      .sort({ createdAt: -1 });
+
     res.status(200).json({ success: true, courses });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -30,16 +31,17 @@ const getCourseById = async (req, res) => {
 
 const createCourse = async (req, res) => {
   try {
-    const { topic, audience, duration, difficulty, email } = req.body;
+    // ✅ Email token se lo, body se nahi
+    const email = req.user.email;
+    const { topic, audience, duration, difficulty } = req.body;
 
-    if (!topic || !audience || !duration || !difficulty || !email) {
+    if (!topic || !audience || !duration || !difficulty) {
       return res.status(400).json({
         success: false,
-        message: "Topic, audience, duration, difficulty and email are all required",
+        message: "Topic, audience, duration, difficulty are required",
       });
     }
 
-    // ✅ Cache check — same params pe Gemini call skip karo
     const cacheKey = getCacheKey("course", { topic, audience, duration, difficulty });
     let aiResult   = getFromCache(cacheKey);
 
@@ -57,7 +59,7 @@ const createCourse = async (req, res) => {
       difficulty,
       syllabus:      aiResult.syllabus,
       studyMaterial: aiResult.studyMaterial,
-      createdBy:     email,
+      createdBy:     email,  // ✅ Token se aaya
     });
 
     res.status(201).json({ success: true, course });

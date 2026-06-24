@@ -6,12 +6,13 @@ const {
   updateCourse,
 } = require("../controllers/courseController");
 const { aiLimiter } = require("../middleware/rateLimiter");
+const verifyToken = require("../middleware/auth");  // ← NEW
 
 const router = express.Router();
 
-router.get("/",      getCourses);           // ✅ No limit — DB only
-router.get("/:id",   getCourseById);        // ✅ No limit — DB only
-router.post("/",     aiLimiter, createCourse);  // ✅ AI limit — Gemini call
-router.patch("/:id", updateCourse);         // ✅ No limit — DB only
+router.get("/",      verifyToken, getCourses);              // ← verifyToken ADD
+router.get("/:id",   verifyToken, getCourseById);           // ← verifyToken ADD
+router.post("/",     verifyToken, aiLimiter, createCourse); // ← verifyToken ADD
+router.patch("/:id", verifyToken, updateCourse);            // ← verifyToken ADD
 
 module.exports = router;

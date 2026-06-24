@@ -1,16 +1,34 @@
 import axios from "axios";
+import { auth } from "../config/firebase";  // ← Apna firebase config
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
+// ✅ Har request mein Firebase token attach karo
+api.interceptors.request.use(
+  async (config) => {
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const token = await user.getIdToken();
+        config.headers.Authorization = `Bearer ${token}`;
+      } catch (error) {
+        console.error("Token get error:", error);
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// ✅ Response errors — same as before
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status  = error.response?.status;
     const message = error.response?.data?.message;
 
-    // ✅ User-friendly messages har status ke liye
     if (status === 429) {
       error.userMessage =
         message ||
@@ -21,6 +39,8 @@ api.interceptors.response.use(
         "Our AI service is busy right now. Please try again in a minute.";
     } else if (status === 500) {
       error.userMessage = "Something went wrong on our end. Please try again.";
+    } else if (status === 401) {
+      error.userMessage = "Session expired. Please login again.";
     } else if (!error.response) {
       error.userMessage = "Network error. Please check your internet connection.";
     } else {

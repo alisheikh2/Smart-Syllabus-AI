@@ -1,13 +1,17 @@
-const rateLimit = require("express-rate-limit");
+const { rateLimit, ipKeyGenerator } = require("express-rate-limit");
 
 // ── Per-user AI call limiter ──────────────────
 // Har user: max 10 AI requests per 15 minutes
 const aiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10,                   // max 10 requests per window
-  keyGenerator: (req) => {
-    // Email se track karo (Firebase se aata hai body mein)
-    return req.body?.email || req.ip;
+  keyGenerator: (req, res) => {
+    // ✅ Token se aayi email use karo (verifyToken middleware ke baad)
+    if (req.user?.email) {
+      return req.user.email;
+    }
+    // Fallback: IPv6-safe IP key generator
+    return ipKeyGenerator(req.ip);
   },
   handler: (req, res) => {
     res.status(429).json({
