@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
+    uid: {
+      type: String,
+      unique: true,    // ← Firebase UID unique hoga
+      sparse: true,    // ← Purane users ke liye null allow
+    },
     name: {
       type: String,
       required: true,
