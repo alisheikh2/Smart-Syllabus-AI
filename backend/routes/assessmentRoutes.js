@@ -5,11 +5,12 @@ const {
   updateAssessment,
 } = require("../controllers/assessmentController");
 const { aiLimiter } = require("../middleware/rateLimiter");
+const verifyToken = require("../middleware/auth");  // ← NEW
 
 const router = express.Router();
 
-router.post("/",                aiLimiter, createAssessment);  // ✅ AI limit
-router.get("/course/:courseId", getAssessmentsByCourse);       // ✅ No limit
-router.patch("/:id",            updateAssessment);             // ✅ No limit
+router.post("/",                verifyToken, aiLimiter, createAssessment);
+router.get("/course/:courseId", verifyToken, getAssessmentsByCourse);
+router.patch("/:id",            verifyToken, updateAssessment);
 
 module.exports = router;

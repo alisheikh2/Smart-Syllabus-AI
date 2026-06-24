@@ -1,7 +1,7 @@
 import api from "./api";
 
-export const getCourses = async (email) => {
-  const response = await api.get(`/courses?email=${email}`);
+export const getCourses = async () => {
+  const response = await api.get(`/courses`);
   return response.data;
 };
 
@@ -15,7 +15,6 @@ export const createCourse = async (courseData) => {
   return response.data;
 };
 
-// ✅ NEW
 export const updateCourse = async (id, updates) => {
   const response = await api.patch(`/courses/${id}`, updates);
   return response.data;

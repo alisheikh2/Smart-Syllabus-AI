@@ -52,7 +52,7 @@ export default function Analytics() {
     const load = async () => {
       try {
         // 1. Load all courses
-        const courseData = await getCourses(user.email);
+        const courseData = await getCourses();
         const fetchedCourses = courseData.courses || [];
         if (!isMounted) return;
         setCourses(fetchedCourses);

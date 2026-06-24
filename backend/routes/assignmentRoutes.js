@@ -6,12 +6,13 @@ const {
   deleteAssignment,
 } = require("../controllers/assignmentController");
 const { aiLimiter } = require("../middleware/rateLimiter");
+const verifyToken = require("../middleware/auth");  // ← NEW
 
 const router = express.Router();
 
-router.post("/",                aiLimiter, createAssignment);  // ✅ AI limit
-router.get("/course/:courseId", getAssignmentsByCourse);       // ✅ No limit
-router.patch("/:id",            updateAssignment);             // ✅ No limit
-router.delete("/:id",          deleteAssignment);             // ✅ No limit
+router.post("/",                verifyToken, aiLimiter, createAssignment);
+router.get("/course/:courseId", verifyToken, getAssignmentsByCourse);
+router.patch("/:id",            verifyToken, updateAssignment);
+router.delete("/:id",           verifyToken, deleteAssignment);
 
 module.exports = router;

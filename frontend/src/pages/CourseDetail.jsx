@@ -12,7 +12,6 @@ import {
   updateAssignment,
   deleteAssignment,
 } from "../services/assignmentService";
-import { useAuth } from "../hooks/useAuth";
 import AssessmentFormModal from "../components/AssessmentFormModal";
 import AssignmentFormModal from "../components/AssignmentFormModal";
 import EditableSyllabus from "../components/EditableSyllabus";
@@ -50,7 +49,6 @@ const DownloadIcon = () => (
 function CourseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   // ── Course ──
   const [course, setCourse] = useState(null);
@@ -220,7 +218,7 @@ function CourseDetail() {
   const handleGenerateAssessment = async (formData) => {
     setGeneratingAssessment(true);
     try {
-      await createAssessment({ ...formData, courseId: id, email: user.email });
+      await createAssessment({ ...formData, courseId: id });
       await refreshAssessments();
       setShowAssessmentModal(false);
       setActiveAssessmentView("paper");
@@ -251,11 +249,7 @@ function CourseDetail() {
   const handleGenerateAssignment = async (formData) => {
     setGeneratingAssignment(true);
     try {
-      const data = await createAssignment({
-        ...formData,
-        courseId: id,
-        email: user.email,
-      });
+      const data = await createAssignment({ ...formData, courseId: id });
       const updated = await refreshAssignments();
       const created =
         updated.find((a) => a._id === data.assignment._id) || data.assignment;

@@ -37,7 +37,7 @@ function Home() {
 
     const loadCourses = async () => {
       try {
-        const data = await getCourses(user.email);
+        const data = await getCourses();
         if (isMounted) setCourses(data.courses);
       } catch (error) {
         console.error("Failed to fetch courses:", error.message);
@@ -52,7 +52,7 @@ function Home() {
 
   const refreshCourses = async () => {
     try {
-      const data = await getCourses(user.email);
+      const data = await getCourses();
       setCourses(data.courses);
     } catch (error) {
       console.error("Failed to refresh courses:", error.message);
