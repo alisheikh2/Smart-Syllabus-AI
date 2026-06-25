@@ -2,6 +2,11 @@
 
 SmartSyllabusAI is an AI-powered educational platform designed to help students generate structured course content, intelligent assessments, and render mathematical formulas efficiently.
 
+## Demo
+Click the link below to watch the project in action:
+
+[Click here to watch the SmartSyllabusAI Demo Video](https://drive.google.com/file/d/1zHbMZPs6SzqVteGdJGf6D9mVreee47pK/view?usp=sharing)
+
 ## ✨ Features
 
 ### 🧠 AI-Powered Course Generation
@@ -70,8 +75,3 @@ For bugs or feature requests, open an issue on GitHub.
 ### 👨‍💻 Developer
 
 Ali
-
-## Demo
-Click the link below to watch the project in action:
-
-[Click here to watch the SmartSyllabusAI Demo Video](https://drive.google.com/file/d/1mADF5lTH1kRSRRaybExMEJN5NallSrSa/view?usp=sharing)
