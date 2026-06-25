@@ -58,7 +58,7 @@ Add AI API key in backend environment variables
 npm start
 
 App will run at:
-http://localhost:3000
+http://localhost:5000
 
 ### 💡 Key Highlights
 KaTeX-powered math rendering
