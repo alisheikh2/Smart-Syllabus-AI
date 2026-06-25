@@ -10,7 +10,6 @@ export const getAssessmentsByCourse = async (courseId) => {
   return response.data;
 };
 
-// ✅ NEW
 export const updateAssessment = async (id, updates) => {
   const response = await api.patch(`/assessments/${id}`, updates);
   return response.data;

@@ -2,7 +2,7 @@ const User = require("../models/User");
 
 const syncUser = async (req, res) => {
   try {
-    // ✅ Firebase se verified email/uid lo — body se nahi
+    // Trusted identity comes from the verified Firebase token
     const { email, uid } = req.user;
     const { name, photo } = req.body;
 
@@ -13,7 +13,7 @@ const syncUser = async (req, res) => {
     let user = await User.findOne({ email });
 
     if (!user) {
-      user = await User.create({ name, email, photo, uid });  // uid bhi save karo
+      user = await User.create({ name, email, photo, uid });
     }
 
     res.status(200).json({ success: true, user });

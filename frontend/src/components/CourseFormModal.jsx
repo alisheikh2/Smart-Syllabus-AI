@@ -16,7 +16,7 @@ function CourseFormModal({ onClose, onSubmit, loading }) {
 
     onSubmit({ topic, audience, duration, difficulty });
 
-    // Start a cooldown so rapid re-clicks can't fire duplicate requests
+    // Prevent duplicate submissions via rapid re-clicks
     setCooldown(8);
     const interval = setInterval(() => {
       setCooldown((prev) => {

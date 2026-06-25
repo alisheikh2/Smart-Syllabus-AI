@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const admin = require("firebase-admin");  // ← NEW
+const admin = require("firebase-admin");
 require("dotenv").config();
 
 const connectDB        = require("./config/db");
@@ -12,7 +12,7 @@ const { aiLimiter, globalLimiter } = require("./middleware/rateLimiter");
 
 const app = express();
 
-// ✅ Firebase Admin Initialize — SABSE PEHLE
+//Firebase Admin Initialize
 admin.initializeApp({
   credential: admin.cert({
     projectId:   process.env.FIREBASE_PROJECT_ID,

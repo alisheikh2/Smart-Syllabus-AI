@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Home from "./pages/Home";
 import CourseDetail from "./pages/CourseDetail";
-import Analytics from "./pages/Analytics";           // ✅ NEW
+import Analytics from "./pages/Analytics";           
 import { AuthProvider } from "./context/AuthProvider";
 import { useAuth } from "./hooks/useAuth";
 import Loader from "./components/Loader";
@@ -17,7 +17,7 @@ function MainApp() {
     <Routes>
       <Route path="/"             element={<Home />} />
       <Route path="/course/:id"   element={<CourseDetail />} />
-      <Route path="/analytics"    element={<Analytics />} />  {/* ✅ NEW */}
+      <Route path="/analytics"    element={<Analytics />} />  
     </Routes>
   );
 }

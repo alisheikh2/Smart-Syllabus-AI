@@ -6,7 +6,7 @@ const {
   deleteAssignment,
 } = require("../controllers/assignmentController");
 const { aiLimiter } = require("../middleware/rateLimiter");
-const verifyToken = require("../middleware/auth");  // ← NEW
+const verifyToken = require("../middleware/auth");
 
 const router = express.Router();
 

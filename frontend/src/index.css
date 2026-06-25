@@ -5,7 +5,7 @@
   to   { width: 0%; }
 }
 
-/* existing animations yahan rahein */
+/* Other animation keyframes */
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;

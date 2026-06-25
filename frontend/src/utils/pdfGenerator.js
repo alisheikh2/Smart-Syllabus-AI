@@ -64,7 +64,7 @@ function writeSectionTitle(doc, text, y) {
   return y + 8;
 }
 
-// ── Existing exports ────────────────────────────────────────
+// ── Existing exports ──
 
 export function generateSyllabusPDF(course) {
   const doc = createDoc();
@@ -183,7 +183,7 @@ export function generateAnswerKeyPDF(course, assessment) {
   doc.save(`${course.title.replace(/\s+/g, "_")}_Answer_Key.pdf`);
 }
 
-// ── ✅ NEW — Assignment PDF exports ─────────────────────────
+// ── Assignment PDF exports ──
 
 // Question paper (no answers)
 export function generateAssignmentPDF(course, assignment) {
@@ -240,10 +240,6 @@ export function generateAssignmentPDF(course, assignment) {
       qNum++;
     });
   }
-
-  // Mixed (no type grouping needed — already sequential above)
-  // If all same type, still works fine.
-
   doc.save(`${assignment.title.replace(/\s+/g, "_")}_Assignment.pdf`);
 }
 

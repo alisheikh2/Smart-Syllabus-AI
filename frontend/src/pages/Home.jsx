@@ -21,7 +21,7 @@ function Home() {
     return "User";
   };
 
-  // ✅ Course count badge helper
+  // Maps difficulty level to its badge color classes
   const getDifficultyColor = (difficulty) => {
     const map = {
       Beginner:     "text-emerald-400 bg-emerald-400/10",
@@ -121,7 +121,6 @@ function Home() {
           </div>
 
           <div className="flex items-center gap-3 flex-shrink-0">
-            {/* ✅ Analytics button */}
             <button
               onClick={() => navigate("/analytics")}
               className="flex-1 sm:flex-initial bg-white/[0.06] border border-white/10 hover:border-[#7C5CFF]/40 hover:bg-[#7C5CFF]/10 transition-all duration-200 text-[#A9A4C2] hover:text-white px-4 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap"
@@ -255,7 +254,6 @@ function Home() {
         />
       )}
 
-      {/* ✅ Toast instead of plain div */}
       <Toast message={formError}   type="error"   onDismiss={() => setFormError("")} />
       <Toast message={successMsg}  type="success" onDismiss={() => setSuccessMsg("")} />
     </div>

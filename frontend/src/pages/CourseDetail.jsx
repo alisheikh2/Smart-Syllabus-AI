@@ -28,7 +28,7 @@ import {
   generateAssignmentAnswerKeyPDF,
 } from "../utils/pdfGenerator";
 
-// ─────────────────────────────────────────────
+
 const DownloadIcon = () => (
   <svg
     className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-y-0.5"
@@ -45,7 +45,7 @@ const DownloadIcon = () => (
   </svg>
 );
 
-// ─────────────────────────────────────────────
+
 function CourseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -81,9 +81,8 @@ function CourseDetail() {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // ─────────────────────────────────────────────
+  
   // Load course
-  // ─────────────────────────────────────────────
   useEffect(() => {
     let isMounted = true;
     const loadCourse = async () => {
@@ -107,9 +106,8 @@ function CourseDetail() {
     };
   }, [id]);
 
-  // ─────────────────────────────────────────────
+  
   // Load assessments
-  // ─────────────────────────────────────────────
   useEffect(() => {
     let isMounted = true;
     const load = async () => {
@@ -117,7 +115,7 @@ function CourseDetail() {
         const data = await getAssessmentsByCourse(id);
         if (isMounted) {
           setAssessments(data.assessments);
-          // ✅ Latest assessment default active
+          // Default to the most recent assessment
           if (data.assessments.length > 0) {
             setActiveAssessment(data.assessments[0]);
           }
@@ -134,9 +132,8 @@ function CourseDetail() {
     };
   }, [id]);
 
-  // ─────────────────────────────────────────────
+  
   // Load assignments
-  // ─────────────────────────────────────────────
   useEffect(() => {
     let isMounted = true;
     const load = async () => {
@@ -159,9 +156,8 @@ function CourseDetail() {
     };
   }, [id]);
 
-  // ─────────────────────────────────────────────
+  
   // Handlers — Course edits
-  // ─────────────────────────────────────────────
   const handleSaveSyllabus = async (updatedSyllabus) => {
     try {
       const data = await updateCourse(id, { syllabus: updatedSyllabus });
@@ -185,14 +181,13 @@ function CourseDetail() {
     }
   };
 
-  // ─────────────────────────────────────────────
+  
   // Handlers — Assessment
-  // ─────────────────────────────────────────────
   const refreshAssessments = async () => {
     try {
       const data = await getAssessmentsByCourse(id);
       setAssessments(data.assessments);
-      // ✅ Naya generate hua to wo active ho
+      // Make the newly generated assessment the active one
       if (data.assessments.length > 0) {
         setActiveAssessment(data.assessments[0]);
       }
@@ -207,7 +202,7 @@ function CourseDetail() {
       setAssessments((prev) =>
         prev.map((a) => (a._id === activeAssessment._id ? data.assessment : a)),
       );
-      // ✅ Active assessment bhi update karo
+      // Keep the active assessment in sync with the saved version
       setActiveAssessment(data.assessment);
       setSuccessMsg("Assessment saved!");
     } catch {
@@ -232,9 +227,8 @@ function CourseDetail() {
     }
   };
 
-  // ─────────────────────────────────────────────
+  
   // Handlers — Assignment
-  // ─────────────────────────────────────────────
   const refreshAssignments = async () => {
     try {
       const data = await getAssignmentsByCourse(id);
@@ -291,9 +285,8 @@ function CourseDetail() {
     }
   };
 
-  // ─────────────────────────────────────────────
+  
   // Loading / Error screens
-  // ─────────────────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#15132B]">
@@ -325,9 +318,8 @@ function CourseDetail() {
     );
   }
 
-  // ─────────────────────────────────────────────
+  
   // Derived
-  // ─────────────────────────────────────────────
   const tabs = [
     { id: "syllabus", label: "Syllabus" },
     { id: "material", label: "Study material" },
@@ -342,9 +334,7 @@ function CourseDetail() {
     "px-4 py-2.5 rounded-xl transition-all duration-200 hover:shadow-md " +
     "hover:shadow-violet-500/10 hover:-translate-y-0.5 active:scale-[0.97]";
 
-  // ─────────────────────────────────────────────
   // Render
-  // ─────────────────────────────────────────────
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#15132B] ruled-bg">
       {/* Blob */}
@@ -425,9 +415,7 @@ function CourseDetail() {
           ))}
         </div>
 
-        {/* ══════════════════════════════════════
-            SYLLABUS TAB
-        ══════════════════════════════════════ */}
+        {/* SYLLABUS TAB */}
         {activeTab === "syllabus" && (
           <div className="fade-in">
             <div className="flex justify-end mb-4">
@@ -471,9 +459,7 @@ function CourseDetail() {
           </div>
         )}
 
-        {/* ══════════════════════════════════════
-            STUDY MATERIAL TAB
-        ══════════════════════════════════════ */}
+        {/*  STUDY MATERIAL TAB */}
         {activeTab === "material" && course.studyMaterial && (
           <div className="fade-in">
             <div className="flex justify-end mb-4">
@@ -534,9 +520,7 @@ function CourseDetail() {
           </div>
         )}
 
-        {/* ══════════════════════════════════════
-            ASSESSMENT TAB
-        ══════════════════════════════════════ */}
+        {/* ASSESSMENT TAB */}
         {activeTab === "assessment" && (
           <div className="fade-in">
             {loadingAssessments ? (
@@ -883,9 +867,7 @@ function CourseDetail() {
           </div>
         )}
 
-        {/* ══════════════════════════════════════
-            ASSIGNMENT TAB
-        ══════════════════════════════════════ */}
+        {/*  ASSIGNMENT TAB */}
         {activeTab === "assignment" && (
           <div className="fade-in">
             {loadingAssignments ? (

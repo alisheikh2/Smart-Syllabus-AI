@@ -11,8 +11,7 @@ function EditableText({
   const [draft, setDraft] = useState(value);
   const inputRef = useRef(null);
 
-  // ✅ FIX: value change hone par draft ko sync karo, lekin setState ko async karo
-  // (eslint: set-state-in-effect warning avoid)
+// Sync draft with value asynchronously to avoid setState-in-effect lint warning
   useEffect(() => {
     if (editing) return;
 
@@ -26,7 +25,7 @@ function EditableText({
     return () => clearTimeout(t);
   }, [value, editing]);
 
-  // Edit mode mein focus
+  // Focus the input when entering edit mode
   useEffect(() => {
     if (editing) inputRef.current?.focus();
   }, [editing]);

@@ -5,7 +5,7 @@ const { getCacheKey, getFromCache, setCache } = require("../middleware/cache");
 
 const createAssessment = async (req, res) => {
   try {
-    const email = req.user.email;  // ✅ Token se
+    const email = req.user.email;
     const {
       courseId, mcqCount, mcqMarks, mcqBloom,
       shortCount, shortMarks, shortBloom,
@@ -25,7 +25,7 @@ const createAssessment = async (req, res) => {
       return res.status(404).json({ success: false, message: "Course not found" });
     }
 
-    // ✅ Ownership check — sirf apna course pe assessment bana sako
+    // Restrict assessment creation to the course owner
     if (course.createdBy !== email) {
       return res.status(403).json({ success: false, message: "Not authorized for this course" });
     }
@@ -47,9 +47,9 @@ const createAssessment = async (req, res) => {
     let aiResult = getFromCache(cacheKey);
 
     if (aiResult) {
-      console.log("✅ Assessment cache hit");
+      console.log("Assessment cache hit:", cacheKey);
     } else {
-      console.log("🔄 Assessment cache miss — calling Gemini");
+      console.log("Assessment cache miss, generating via Gemini:", cacheKey);
       aiResult = await generateAssessment({
         courseTitle:   course.title,
         syllabus:      filteredSyllabus,
@@ -78,7 +78,7 @@ const createAssessment = async (req, res) => {
       mcqs:           aiResult.mcqs,
       shortQuestions: aiResult.shortQuestions,
       longQuestions:  aiResult.longQuestions,
-      createdBy:      email,  // ✅ Token se
+      createdBy:      email,
       coveredWeeks:   weeks || [],
       difficultyDistribution: { easyPercent, mediumPercent, hardPercent },
     });
@@ -96,14 +96,15 @@ const createAssessment = async (req, res) => {
 
 const getAssessmentsByCourse = async (req, res) => {
   try {
-    const email = req.user.email;  // ✅ Token se
+    const email = req.user.email;
     const { courseId } = req.params;
 
-    // ✅ Ownership check
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ success: false, message: "Course not found" });
     }
+
+    // Only the course owner can view its assessments
     if (course.createdBy !== email) {
       return res.status(403).json({ success: false, message: "Not authorized for this course" });
     }
@@ -117,7 +118,7 @@ const getAssessmentsByCourse = async (req, res) => {
 
 const updateAssessment = async (req, res) => {
   try {
-    const email = req.user.email;  // ✅ Token se
+    const email = req.user.email;
     const { id } = req.params;
     const { mcqs, shortQuestions, longQuestions } = req.body;
 
@@ -126,7 +127,7 @@ const updateAssessment = async (req, res) => {
       return res.status(404).json({ success: false, message: "Assessment not found" });
     }
 
-    // ✅ Ownership check — assessment ke parent course se verify karo
+    // Resolve ownership through the parent course before allowing edits
     const course = await Course.findById(assessment.courseId);
     if (!course || course.createdBy !== email) {
       return res.status(403).json({ success: false, message: "Not authorized for this assessment" });

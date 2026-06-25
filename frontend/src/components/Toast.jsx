@@ -1,17 +1,14 @@
 import { useEffect, useRef } from "react";
 
-// ✅ FIX: visible state hata diya — sirf message prop se control hoga
-// Parent component message="" set karega dismiss ke liye
+// Visibility is fully controlled by the message prop; parent dismisses by clearing it
 function Toast({ message, type = "error", onDismiss }) {
-  // ✅ FIX: onDismiss ko ref mein rakh do taake deps array mein add na karna pade
-  // Ye pattern "stable callback ref" kehlata hai
+  // Store the latest onDismiss in a ref to keep it out of the effect's dependency array
   const onDismissRef = useRef(onDismiss);
   useEffect(() => {
     onDismissRef.current = onDismiss;
   });
 
   useEffect(() => {
-    // ✅ FIX: setVisible(true) hata diya — koi synchronous setState nahi
     if (!message) return;
 
     const timer = setTimeout(() => {
@@ -19,9 +16,8 @@ function Toast({ message, type = "error", onDismiss }) {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [message]); // ✅ onDismiss yahan nahi chahiye kyunki ref use kar rahe hain
+  }, [message]); // onDismiss is intentionally omitted; it's accessed via the ref
 
-  // ✅ message nahi hai to kuch render mat karo
   if (!message) return null;
 
   const styles = {

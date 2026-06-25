@@ -10,7 +10,6 @@ export const getAssignmentsByCourse = async (courseId) => {
   return response.data;
 };
 
-// ✅ NEW
 export const updateAssignment = async (id, updates) => {
   const response = await api.patch(`/assignments/${id}`, updates);
   return response.data;

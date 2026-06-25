@@ -2,7 +2,7 @@ import { useState } from "react";
 import EditableText from "./EditableText";
 
 function EditableSyllabus({ syllabus, onChange }) {
-  // Local copy rakho — save button press par parent ko batao
+  // Local copy so changes can be discarded without affecting parent state
   const [weeks, setWeeks] = useState(
     syllabus.map((w) => ({ ...w, topics: [...w.topics] }))
   );
@@ -14,7 +14,6 @@ function EditableSyllabus({ syllabus, onChange }) {
     setDirty(true);
   };
 
-  // ── Week name edit ──
   const updateWeekName = (wi, newName) => {
     const updated = weeks.map((w, i) =>
       i === wi ? { ...w, week: newName } : w
@@ -22,7 +21,6 @@ function EditableSyllabus({ syllabus, onChange }) {
     markDirty(updated);
   };
 
-  // ── Topic edit ──
   const updateTopic = (wi, ti, newTopic) => {
     const updated = weeks.map((w, i) =>
       i === wi
@@ -32,7 +30,6 @@ function EditableSyllabus({ syllabus, onChange }) {
     markDirty(updated);
   };
 
-  // ── Topic delete ──
   const deleteTopic = (wi, ti) => {
     const updated = weeks.map((w, i) =>
       i === wi
@@ -41,8 +38,7 @@ function EditableSyllabus({ syllabus, onChange }) {
     );
     markDirty(updated);
   };
-
-  // ── Topic add ──
+ 
   const addTopic = (wi) => {
     const updated = weeks.map((w, i) =>
       i === wi
@@ -52,13 +48,11 @@ function EditableSyllabus({ syllabus, onChange }) {
     markDirty(updated);
   };
 
-  // ── Week delete ──
   const deleteWeek = (wi) => {
     const updated = weeks.filter((_, i) => i !== wi);
     markDirty(updated);
   };
 
-  // ── Week add ──
   const addWeek = () => {
     const newWeek = {
       week: `Week ${weeks.length + 1}`,
@@ -145,7 +139,7 @@ function EditableSyllabus({ syllabus, onChange }) {
         + Add week
       </button>
 
-      {/* Save / Discard — sirf tab dikhao jab changes ho */}
+      {/* Save / Discard — only shown when there are unsaved changes */}
       {dirty && (
         <div className="flex gap-3 justify-end mt-1 fade-in">
           <button

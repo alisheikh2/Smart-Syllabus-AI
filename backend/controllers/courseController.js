@@ -4,7 +4,6 @@ const { getCacheKey, getFromCache, setCache } = require("../middleware/cache");
 
 const getCourses = async (req, res) => {
   try {
-    // ✅ Email ab token se aayegi (req.user), query se nahi
     const email = req.user.email;
 
     const courses = await Course.find({ createdBy: email })
@@ -18,11 +17,19 @@ const getCourses = async (req, res) => {
 
 const getCourseById = async (req, res) => {
   try {
+    const email = req.user.email;
     const { id } = req.params;
+
     const course = await Course.findById(id);
     if (!course) {
       return res.status(404).json({ success: false, message: "Course not found" });
     }
+
+    // Only the course owner can view its details
+    if (course.createdBy !== email) {
+      return res.status(403).json({ success: false, message: "Not authorized for this course" });
+    }
+
     res.status(200).json({ success: true, course });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -31,7 +38,6 @@ const getCourseById = async (req, res) => {
 
 const createCourse = async (req, res) => {
   try {
-    // ✅ Email token se lo, body se nahi
     const email = req.user.email;
     const { topic, audience, duration, difficulty } = req.body;
 
@@ -46,9 +52,9 @@ const createCourse = async (req, res) => {
     let aiResult   = getFromCache(cacheKey);
 
     if (aiResult) {
-      console.log("✅ Cache hit:", cacheKey);
+      console.log("Cache hit:", cacheKey);
     } else {
-      console.log("🔄 Cache miss — calling Gemini");
+      console.log("Cache miss, generating via Gemini:", cacheKey);
       aiResult = await generateCourse({ topic, audience, duration, difficulty });
       setCache(cacheKey, aiResult);
     }
@@ -59,7 +65,7 @@ const createCourse = async (req, res) => {
       difficulty,
       syllabus:      aiResult.syllabus,
       studyMaterial: aiResult.studyMaterial,
-      createdBy:     email,  // ✅ Token se aaya
+      createdBy:     email,
     });
 
     res.status(201).json({ success: true, course });
@@ -75,12 +81,18 @@ const createCourse = async (req, res) => {
 
 const updateCourse = async (req, res) => {
   try {
+    const email = req.user.email;
     const { id } = req.params;
     const { syllabus, studyMaterial } = req.body;
 
     const course = await Course.findById(id);
     if (!course) {
       return res.status(404).json({ success: false, message: "Course not found" });
+    }
+
+    // Only the course owner can update its content
+    if (course.createdBy !== email) {
+      return res.status(403).json({ success: false, message: "Not authorized for this course" });
     }
 
     if (syllabus      !== undefined) course.syllabus      = syllabus;

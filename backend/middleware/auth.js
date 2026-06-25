@@ -12,7 +12,6 @@ const verifyToken = async (req, res, next) => {
     }
 
     const token = authHeader.split("Bearer ")[1];
-
     const decoded = await getAuth().verifyIdToken(token);
 
     req.user = {

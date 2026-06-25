@@ -1,7 +1,7 @@
 import { useState } from "react";
 import EditableText from "./EditableText";
 
-// ── MCQ Editor ────────────────────────────────
+// MCQ Editor
 function McqEditor({ q, index, onChange }) {
   const LABELS = ["A", "B", "C", "D"];
 
@@ -87,7 +87,7 @@ function McqEditor({ q, index, onChange }) {
   );
 }
 
-// ── Short / Long Editor ───────────────────────
+// Short / Long Editor
 function QaEditor({ q, index, onChange }) {
   const colorMap = {
     short: { badge: "text-blue-400 bg-blue-400/10", border: "border-blue-400/30",  label: "Short" },
@@ -137,7 +137,7 @@ function QaEditor({ q, index, onChange }) {
   );
 }
 
-// ── Main ─────────────────────────────────────
+// Main
 function EditableAssignment({ assignment, onSave }) {
   const [questions, setQuestions] = useState([...(assignment.questions || [])]);
   const [dirty,     setDirty]     = useState(false);

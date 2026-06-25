@@ -4,8 +4,8 @@ const userSchema = new mongoose.Schema(
   {
     uid: {
       type: String,
-      unique: true,    // ← Firebase UID unique hoga
-      sparse: true,    // ← Purane users ke liye null allow
+      unique: true,
+      sparse: true, // allows legacy records without a Firebase UID
     },
     name: {
       type: String,

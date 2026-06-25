@@ -1,11 +1,11 @@
 import axios from "axios";
-import { auth } from "../config/firebase";  // ← Apna firebase config
+import { auth } from "../config/firebase";  
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
-// ✅ Har request mein Firebase token attach karo
+// Attach Firebase auth token to every outgoing request
 api.interceptors.request.use(
   async (config) => {
     const user = auth.currentUser;
@@ -22,7 +22,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// ✅ Response errors — same as before
+// Map error responses to user-friendly messages
 api.interceptors.response.use(
   (response) => response,
   (error) => {

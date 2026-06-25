@@ -2,12 +2,10 @@ const { GoogleGenAI, Type } = require("@google/genai");
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-// ─────────────────────────────────────────────
-// 🚦 REQUEST QUEUE (RPM throttle)
-// ─────────────────────────────────────────────
-// MAX_CONCURRENT : kitne Gemini calls ek saath chal sakte hain
-// MIN_GAP_MS     : do consecutive starts ke beech minimum gap
-//                  4000ms → ~15 starts/min → safe under 15 RPM free tier
+// Request queue — throttles Gemini calls to stay under the RPM limit
+// MAX_CONCURRENT : number of Gemini calls allowed to run at once
+// MIN_GAP_MS     : minimum gap between two consecutive call starts
+//                  4000ms -> ~15 starts/min, safely under the 15 RPM free-tier limit
 
 const MAX_CONCURRENT = 3;
 const MIN_GAP_MS = 4000;
@@ -26,7 +24,8 @@ const queue = {
     });
   },
 
-  // ✅ FIX: Single drain path via microtask to avoid race conditions
+  // Schedules a single drain pass via microtask to avoid race conditions
+  // from multiple concurrent callers triggering _drain() directly.
   _scheduleNextDrain() {
     if (this._drainScheduled) return;
     this._drainScheduled = true;
@@ -62,18 +61,16 @@ const queue = {
       .catch(item.reject)
       .finally(() => {
         this._running--;
-        // ✅ FIX: Use single scheduled drain instead of direct call
         this._scheduleNextDrain();
       });
 
-    // Try to fill remaining capacity (MIN_GAP_MS will pace starts)
+    // Try to fill remaining capacity; MIN_GAP_MS paces the actual starts
     this._drain();
   },
 };
 
-// ─────────────────────────────────────────────
-// Custom Error Class
-// ─────────────────────────────────────────────
+
+// Custom error class
 class AIServiceUnavailableError extends Error {
   constructor(reason, cause) {
     const message =
@@ -90,14 +87,13 @@ class AIServiceUnavailableError extends Error {
   }
 }
 
-// ─────────────────────────────────────────────
-// Model Chain + Retry Config
-// ─────────────────────────────────────────────
+
+// Model chain + retry config
 const MODEL_CHAIN = ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro"];
 const RETRIES_FOR_503 = 3;
 const RETRIES_FOR_429 = 2;
 
-// ✅ FIX: Robust retry delay parsing — handles "90s", "90", edge cases
+// Parses the server-provided retry delay (handles "90s", "90", and malformed values)
 function getServerRetryDelayMs(err) {
   try {
     const details =
@@ -112,11 +108,11 @@ function getServerRetryDelayMs(err) {
 
     const raw = String(retryInfo.retryDelay).trim();
 
-    // Matches "90s", "1.5s", or plain "90" (seconds assumed)
+    // Matches "90s", "1.5s", or a plain "90" (seconds assumed)
     const secondsMatch = raw.match(/^(\d+(?:\.\d+)?)s?$/);
     if (secondsMatch) {
       const seconds = parseFloat(secondsMatch[1]);
-      // Sanity check: between 1s and 5 minutes
+      // Sanity check: clamp to a reasonable range (1s to 5 minutes)
       if (seconds >= 1 && seconds <= 300) {
         return seconds * 1000;
       }
@@ -128,12 +124,11 @@ function getServerRetryDelayMs(err) {
   }
 }
 
-// ─────────────────────────────────────────────
-// 🔁 Retry + Model Fallback Wrapper
-// ─────────────────────────────────────────────
-// ✅ FIX: Only the actual API call is queued (not the whole retry loop)
-//         This frees the queue slot between retries so other requests
-//         can proceed instead of waiting behind a retrying request.
+
+/* Retry + model fallback wrapper
+Only the actual API call is queued, not the surrounding retry loop —
+this frees the queue slot between retries so other requests can proceed
+instead of waiting behind one that's backing off.*/
 async function callGeminiWithRetry(buildRequest) {
   let lastError;
   let lastErrorReason = "unknown";
@@ -142,12 +137,10 @@ async function callGeminiWithRetry(buildRequest) {
     let delay = 1000;
     let attempt = 0;
 
-    // ✅ FIX: Use correct per-error-type max retries (no Math.max confusion)
     const maxRetries = Math.max(RETRIES_FOR_503, RETRIES_FOR_429); // outer bound
 
     while (attempt < maxRetries) {
       try {
-        // ✅ FIX: Queue only the actual Gemini call
         return await queue.enqueue(() =>
           ai.models.generateContent(buildRequest(model))
         );
@@ -168,19 +161,19 @@ async function callGeminiWithRetry(buildRequest) {
 
         lastErrorReason = is503 ? "overloaded" : is429 ? "quota" : "unknown";
 
-        // Non-retryable error → throw immediately
+        // Non-retryable error — fail fast
         if (!is503 && !is429) throw err;
 
-        // ✅ FIX: Each error type uses its own retry limit correctly
+        // Each error type respects its own retry budget
         const maxRetriesForThisError = is429 ? RETRIES_FOR_429 : RETRIES_FOR_503;
 
         if (attempt >= maxRetriesForThisError - 1) {
           console.warn(
-            `⚠ ${model} exhausted after ${maxRetriesForThisError} retries (${
+            `${model} exhausted after ${maxRetriesForThisError} retries (${
               is429 ? "429" : "503"
-            }). Trying next model…`
+            }). Trying next model.`
           );
-          break; // move to next model
+          break; // move to next model in the chain
         }
 
         const waitTime = is429
@@ -188,7 +181,7 @@ async function callGeminiWithRetry(buildRequest) {
           : delay;
 
         console.warn(
-          `⚠ ${model} ${is429 ? "rate limited" : "busy"}. Retry ${
+          `${model} ${is429 ? "rate limited" : "busy"}. Retry ${
             attempt + 1
           }/${maxRetriesForThisError} in ${Math.round(waitTime)}ms`
         );
@@ -200,13 +193,12 @@ async function callGeminiWithRetry(buildRequest) {
     }
   }
 
-  console.error("❌ All models exhausted. Last error:", lastError?.message || lastError);
+  console.error("All models exhausted. Last error:", lastError?.message || lastError);
   throw new AIServiceUnavailableError(lastErrorReason, lastError);
 }
 
-// ─────────────────────────────────────────────
+
 // Helpers
-// ─────────────────────────────────────────────
 function stripMathArtifacts(text = "") {
   return text
     .replace(/\$/g, "")
@@ -224,8 +216,9 @@ function stripMathArtifacts(text = "") {
     .trim();
 }
 
-// ✅ FIX: Safer JSON parse — only escape actual control characters,
-//         not content newlines inside model answers
+/* Parses the model's JSON output. Falls back to escaping stray control
+ characters before retrying, since model output occasionally contains
+ unescaped newlines/tabs inside string values.*/
 function safeJsonParse(rawText) {
   let cleaned = rawText
     .replace(/```json/g, "")
@@ -236,22 +229,20 @@ function safeJsonParse(rawText) {
     return JSON.parse(cleaned);
   } catch (_) {
     try {
-      // Only escape true control characters, preserve intentional content
+      // Only escape actual control characters — preserve intentional content
       const escaped = cleaned.replace(/[\x00-\x1F\x7F]/g, (ch) => {
         const map = { "\n": "\\n", "\r": "\\r", "\t": "\\t" };
         return map[ch] ?? "";
       });
       return JSON.parse(escaped);
     } catch (e) {
-      console.error("❌ RAW RESPONSE:", rawText);
+      console.error("Raw model response:", rawText);
       throw new Error("AI returned invalid JSON");
     }
   }
 }
 
-// ─────────────────────────────────────────────
 // Schemas
-// ─────────────────────────────────────────────
 const COURSE_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -350,9 +341,8 @@ const LONG_SCHEMA = {
   required: ["longQuestions"],
 };
 
-// ─────────────────────────────────────────────
+
 // Prompts
-// ─────────────────────────────────────────────
 function buildCoursePrompt({ topic, audience, duration, difficulty }) {
   return `
 You are an expert curriculum designer.
@@ -401,9 +391,8 @@ Return ONLY valid JSON matching the provided schema.
 `;
 }
 
-// ─────────────────────────────────────────────
-// 📘 Generate Course
-// ─────────────────────────────────────────────
+
+// Generate course
 async function generateCourse({ topic, audience, duration, difficulty }) {
   const prompt = buildCoursePrompt({ topic, audience, duration, difficulty });
 
@@ -428,12 +417,10 @@ async function generateCourse({ topic, audience, duration, difficulty }) {
   return parsed;
 }
 
-// ─────────────────────────────────────────────
-// 🧪 Generate Assessment (3 parallel calls)
-// ─────────────────────────────────────────────
-// ✅ FIX: Promise.allSettled instead of Promise.all so one failure
-//         doesn't silently kill the entire assessment.
-//         Partial results are returned with a warning.
+
+/* Generate assessment (3 parallel calls — MCQ, short, long)
+ Uses Promise.allSettled so a single failed section doesn't take down
+ the whole assessment; partial results are returned with a logged warning.*/
 async function generateAssessment(params) {
   const [mcqResult, shortResult, longResult] = await Promise.allSettled([
     callGeminiWithRetry((model) => ({
@@ -462,7 +449,7 @@ async function generateAssessment(params) {
     })),
   ]);
 
-  // ── Safe parser: logs failure, returns empty array as fallback ──
+  // Extracts a section's data, logging and falling back to an empty array on failure
   const failures = [];
 
   function safeExtract(result, key, label) {
@@ -485,10 +472,10 @@ async function generateAssessment(params) {
   };
 
   if (failures.length > 0) {
-    console.warn("⚠ Assessment partial failures:", failures);
+    console.warn("Assessment partial failures:", failures);
   }
 
-  // If every section is empty, something is seriously wrong → throw
+  // If every section came back empty, something is seriously wrong — fail loudly
   const totalQuestions =
     parsed.mcqs.length + parsed.shortQuestions.length + parsed.longQuestions.length;
 
@@ -499,7 +486,7 @@ async function generateAssessment(params) {
     );
   }
 
-  // ── Strip math artifacts ──
+  // Strip math artifacts from generated content
   parsed.mcqs.forEach((q) => {
     q.question = stripMathArtifacts(q.question);
     q.options  = (q.options || []).map(stripMathArtifacts);
@@ -515,9 +502,9 @@ async function generateAssessment(params) {
 
   return parsed;
 }
-// ─────────────────────────────────────────────
-// Assignment Schema
-// ─────────────────────────────────────────────
+
+
+// Assignment schema
 const ASSIGNMENT_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -542,9 +529,8 @@ const ASSIGNMENT_SCHEMA = {
   required: ["questions"],
 };
 
-// ─────────────────────────────────────────────
-// Assignment Prompt
-// ─────────────────────────────────────────────
+
+// Assignment prompt
 function buildAssignmentPrompt(params) {
   const typeInstructions = {
     mcq:   "All questions must be MCQs with 4 options and a correct answer.",
@@ -581,9 +567,8 @@ Return ONLY valid JSON matching the provided schema.
 `;
 }
 
-// ─────────────────────────────────────────────
-// 📋 GENERATE ASSIGNMENT
-// ─────────────────────────────────────────────
+
+// Generate assignment
 async function generateAssignment(params) {
   const response = await callGeminiWithRetry((model) => ({
     model,
@@ -597,7 +582,6 @@ async function generateAssignment(params) {
   const parsed = safeJsonParse(response.text);
   const questions = parsed.questions || [];
 
-  // Strip math artifacts
   questions.forEach((q) => {
     q.question = stripMathArtifacts(q.question || "");
     if (q.modelAnswer) q.modelAnswer = stripMathArtifacts(q.modelAnswer);
@@ -607,15 +591,9 @@ async function generateAssignment(params) {
   return { questions };
 }
 
-// ─────────────────────────────────────────────
-// Exports — generateAssignment add karo
-// ─────────────────────────────────────────────
 module.exports = {
   generateCourse,
   generateAssessment,
-  generateAssignment,   // ✅ NEW
+  generateAssignment,
   AIServiceUnavailableError,
 };
-// ─────────────────────────────────────────────
-// Exports
-// ─────────────────────────────────────────────

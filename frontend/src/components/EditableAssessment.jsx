@@ -1,7 +1,7 @@
 import { useState } from "react";
 import EditableText from "./EditableText";
 
-// ── MCQ Editor ────────────────────────────────
+// MCQ Editor 
 function McqEditor({ mcq, index, onChange }) {
   const LABELS = ["A", "B", "C", "D"];
 
@@ -91,7 +91,7 @@ function McqEditor({ mcq, index, onChange }) {
   );
 }
 
-// ── Short / Long Question Editor ──────────────
+// Short / Long Question Editor 
 function QaEditor({ q, index, label, onChange }) {
   return (
     <div className="border border-white/10 rounded-xl p-4 bg-white/[0.03] flex flex-col gap-3">
@@ -131,7 +131,7 @@ function QaEditor({ q, index, label, onChange }) {
   );
 }
 
-// ── Main Component ────────────────────────────
+// Main Component 
 function EditableAssessment({ assessment, onSave }) {
   const [mcqs, setMcqs]                   = useState([...(assessment.mcqs || [])]);
   const [shortQuestions, setShortQuestions] = useState([...(assessment.shortQuestions || [])]);

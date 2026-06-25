@@ -3,7 +3,7 @@ import "katex/dist/katex.min.css";
 
 const katexOptions = { strict: false, throwOnError: false };
 
-// 🔥 MASTER SYMBOL MAP: Har wo cheez jo aap ko chahiye
+// Map of LaTeX commands and plain-text aliases to their Unicode symbols
 const SYMBOL_MAP = {
   // Greek Letters
   "\\delta": "δ", "delta": "δ", "\\Delta": "Δ", "Delta": "Δ",
@@ -27,7 +27,7 @@ const SYMBOL_MAP = {
   "\\neq": "≠", "\\geq": "≥", "\\leq": "≤"
 };
 
-// Yeh function text ko symbol mein badal kar "protect" karta hai
+// Replaces LaTeX/plain-text symbol notation with the actual Unicode character
 const processSymbols = (str) => {
   let text = str;
   Object.keys(SYMBOL_MAP).forEach(key => {
@@ -38,13 +38,13 @@ const processSymbols = (str) => {
   return text;
 };
 
-// Detects [[1,2],[3,4]] style matrix literals inside a string and splits
-// the string into plain-text and matrix segments.
+/* Detects [[1,2],[3,4]] style matrix literals inside a string and splits
+ the string into plain-text and matrix segments.*/
 const MATRIX_REGEX = /\[\s*\[[^\]]*\](?:\s*,\s*\[[^\]]*\])*\s*\]/g;
 
 function parseMatrixLiteral(raw) {
   try {
-    // Only allow numbers, commas, brackets, minus, dot, whitespace - safe to eval as JSON
+    // Restrict to a safe character set before parsing as JSON
     if (!/^[\s[\]0-9.,-]+$/.test(raw)) return null;
     const rows = JSON.parse(raw);
     if (!Array.isArray(rows) || !rows.every((r) => Array.isArray(r))) return null;
@@ -83,8 +83,8 @@ function MatrixGrid({ rows }) {
   );
 }
 
-// Splits text into plain text and [[...]] matrix segments, rendering
-// matrices as a visual grid and leaving everything else as plain text.
+/* Splits text into plain text and [[...]] matrix segments, rendering
+ matrices as a visual grid and leaving everything else as plain text.*/
 function renderWithMatrices(text) {
   const parts = [];
   let lastIndex = 0;
@@ -116,10 +116,10 @@ function renderWithMatrices(text) {
 function MathText({ text }) {
   if (!text) return null;
 
-  // 1. PURE TEXT SANITIZE (protect Greek/math symbols)
+  // Convert symbol notation before rendering
   const sanitizedText = processSymbols(text);
 
-  // 2. SPLIT & RENDER: block math ($$...$$) first
+  // Render block math ($$...$$) first
   const blockParts = sanitizedText.split(/(\$\$[^$]+\$\$)/g);
 
   return (

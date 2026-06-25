@@ -5,7 +5,7 @@ const { getCacheKey, getFromCache, setCache } = require("../middleware/cache");
 
 const createAssignment = async (req, res) => {
   try {
-    const email = req.user.email;  // ✅ Token se
+    const email = req.user.email;
     const {
       courseId, title, questionCount, questionType,
       totalMarks, dueDate, weeks, bloomLevel,
@@ -24,7 +24,7 @@ const createAssignment = async (req, res) => {
       return res.status(404).json({ success: false, message: "Course not found" });
     }
 
-    // ✅ Ownership check
+    // Restrict assignment creation to the course owner
     if (course.createdBy !== email) {
       return res.status(403).json({ success: false, message: "Not authorized for this course" });
     }
@@ -46,9 +46,9 @@ const createAssignment = async (req, res) => {
     let aiResult = getFromCache(cacheKey);
 
     if (aiResult) {
-      console.log("✅ Assignment cache hit");
+      console.log("Assignment cache hit:", cacheKey);
     } else {
-      console.log("🔄 Assignment cache miss — calling Gemini");
+      console.log("Assignment cache miss, generating via Gemini:", cacheKey);
       aiResult = await generateAssignment({
         courseTitle:   course.title,
         syllabus:      filteredSyllabus,
@@ -68,7 +68,7 @@ const createAssignment = async (req, res) => {
       totalMarks:    totalMarks || 0,
       dueDate:       dueDate    || null,
       questions:     aiResult.questions,
-      createdBy:     email,  // ✅ Token se
+      createdBy:     email,
       coveredWeeks:  weeks || [],
       difficultyDistribution: { easyPercent, mediumPercent, hardPercent },
     });
@@ -86,14 +86,15 @@ const createAssignment = async (req, res) => {
 
 const getAssignmentsByCourse = async (req, res) => {
   try {
-    const email = req.user.email;  // ✅ Token se
+    const email = req.user.email;
     const { courseId } = req.params;
 
-    // ✅ Ownership check
     const course = await Course.findById(courseId);
     if (!course) {
       return res.status(404).json({ success: false, message: "Course not found" });
     }
+
+    // Only the course owner can view its assignments
     if (course.createdBy !== email) {
       return res.status(403).json({ success: false, message: "Not authorized for this course" });
     }
@@ -107,7 +108,7 @@ const getAssignmentsByCourse = async (req, res) => {
 
 const updateAssignment = async (req, res) => {
   try {
-    const email = req.user.email;  // ✅ Token se
+    const email = req.user.email;
     const { id } = req.params;
     const { questions } = req.body;
 
@@ -116,7 +117,7 @@ const updateAssignment = async (req, res) => {
       return res.status(404).json({ success: false, message: "Assignment not found" });
     }
 
-    // ✅ Ownership check — assignment ke parent course se verify karo
+    // Resolve ownership through the parent course before allowing edits
     const course = await Course.findById(assignment.courseId);
     if (!course || course.createdBy !== email) {
       return res.status(403).json({ success: false, message: "Not authorized for this assignment" });
@@ -134,7 +135,7 @@ const updateAssignment = async (req, res) => {
 
 const deleteAssignment = async (req, res) => {
   try {
-    const email = req.user.email;  // ✅ Token se
+    const email = req.user.email;
     const { id } = req.params;
 
     const assignment = await Assignment.findById(id);
@@ -142,7 +143,7 @@ const deleteAssignment = async (req, res) => {
       return res.status(404).json({ success: false, message: "Assignment not found" });
     }
 
-    // ✅ Ownership check
+    // Resolve ownership through the parent course before allowing deletion
     const course = await Course.findById(assignment.courseId);
     if (!course || course.createdBy !== email) {
       return res.status(403).json({ success: false, message: "Not authorized for this assignment" });
