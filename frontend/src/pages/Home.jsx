@@ -24,9 +24,9 @@ function Home() {
   // Maps difficulty level to its badge color classes
   const getDifficultyColor = (difficulty) => {
     const map = {
-      Beginner:     "text-emerald-400 bg-emerald-400/10",
+      Beginner: "text-emerald-400 bg-emerald-400/10",
       Intermediate: "text-amber-400 bg-amber-400/10",
-      Advanced:     "text-rose-400 bg-rose-400/10",
+      Advanced: "text-rose-400 bg-rose-400/10",
     };
     return map[difficulty] || "text-[#A9A4C2] bg-white/5";
   };
@@ -47,7 +47,9 @@ function Home() {
     };
 
     loadCourses();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   const refreshCourses = async () => {
@@ -64,10 +66,14 @@ function Home() {
     setFormError("");
 
     try {
-      await createCourse({ ...formData, email: user.email });
+      const data = await createCourse({ ...formData, email: user.email });
       await refreshCourses();
       setShowModal(false);
-      setSuccessMsg("Course created successfully!");
+      setSuccessMsg(
+        data.isFallback
+          ? "Live AI is at capacity right now — showing sample content."
+          : "Course created successfully!",
+      );
     } catch (error) {
       setFormError(error.userMessage || "Failed to generate course.");
     } finally {
@@ -77,19 +83,25 @@ function Home() {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#15132B] ruled-bg">
-
       {/* Background blobs */}
       <div
         className="absolute w-[480px] h-[480px] rounded-full blob-a opacity-20 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #7C5CFF, transparent 70%)", top: "-10%", right: "-10%" }}
+        style={{
+          background: "radial-gradient(circle, #7C5CFF, transparent 70%)",
+          top: "-10%",
+          right: "-10%",
+        }}
       />
       <div
         className="absolute w-[420px] h-[420px] rounded-full blob-b opacity-15 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #FF6B5E, transparent 70%)", bottom: "-10%", left: "-5%" }}
+        style={{
+          background: "radial-gradient(circle, #FF6B5E, transparent 70%)",
+          bottom: "-10%",
+          left: "-5%",
+        }}
       />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-
         {/* Header */}
         <div
           className="rise-in flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-10"
@@ -150,14 +162,19 @@ function Home() {
             },
             {
               label: "Difficulty Mix",
-              value: [...new Set(courses.map((c) => c.difficulty).filter(Boolean))].join(", ") || "—",
+              value:
+                [
+                  ...new Set(courses.map((c) => c.difficulty).filter(Boolean)),
+                ].join(", ") || "—",
             },
           ].map((stat, i) => (
             <div
               key={i}
               className="bg-[#FAF8F3]/[0.04] border border-white/10 rounded-2xl p-4 text-center overflow-hidden"
             >
-              <p className="text-white font-display font-bold text-xl sm:text-2xl break-words">{stat.value}</p>
+              <p className="text-white font-display font-bold text-xl sm:text-2xl break-words">
+                {stat.value}
+              </p>
               <p className="text-[#A9A4C2] text-xs mt-1">{stat.label}</p>
             </div>
           ))}
@@ -225,7 +242,9 @@ function Home() {
                       </span>
                     )}
                     {course.difficulty && (
-                      <span className={`text-xs px-2 py-1 rounded-md font-medium ${getDifficultyColor(course.difficulty)}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded-md font-medium ${getDifficultyColor(course.difficulty)}`}
+                      >
                         {course.difficulty}
                       </span>
                     )}
@@ -248,14 +267,25 @@ function Home() {
 
       {showModal && (
         <CourseFormModal
-          onClose={() => { setShowModal(false); setFormError(""); }}
+          onClose={() => {
+            setShowModal(false);
+            setFormError("");
+          }}
           onSubmit={handleCreateCourse}
           loading={generating}
         />
       )}
 
-      <Toast message={formError}   type="error"   onDismiss={() => setFormError("")} />
-      <Toast message={successMsg}  type="success" onDismiss={() => setSuccessMsg("")} />
+      <Toast
+        message={formError}
+        type="error"
+        onDismiss={() => setFormError("")}
+      />
+      <Toast
+        message={successMsg}
+        type="success"
+        onDismiss={() => setSuccessMsg("")}
+      />
     </div>
   );
 }

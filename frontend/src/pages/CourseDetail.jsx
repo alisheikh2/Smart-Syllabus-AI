@@ -28,7 +28,6 @@ import {
   generateAssignmentAnswerKeyPDF,
 } from "../utils/pdfGenerator";
 
-
 const DownloadIcon = () => (
   <svg
     className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-y-0.5"
@@ -44,7 +43,6 @@ const DownloadIcon = () => (
     <line x1="12" y1="15" x2="12" y2="3" />
   </svg>
 );
-
 
 function CourseDetail() {
   const { id } = useParams();
@@ -81,7 +79,6 @@ function CourseDetail() {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  
   // Load course
   useEffect(() => {
     let isMounted = true;
@@ -106,7 +103,6 @@ function CourseDetail() {
     };
   }, [id]);
 
-  
   // Load assessments
   useEffect(() => {
     let isMounted = true;
@@ -132,7 +128,6 @@ function CourseDetail() {
     };
   }, [id]);
 
-  
   // Load assignments
   useEffect(() => {
     let isMounted = true;
@@ -156,7 +151,6 @@ function CourseDetail() {
     };
   }, [id]);
 
-  
   // Handlers — Course edits
   const handleSaveSyllabus = async (updatedSyllabus) => {
     try {
@@ -181,7 +175,6 @@ function CourseDetail() {
     }
   };
 
-  
   // Handlers — Assessment
   const refreshAssessments = async () => {
     try {
@@ -213,11 +206,15 @@ function CourseDetail() {
   const handleGenerateAssessment = async (formData) => {
     setGeneratingAssessment(true);
     try {
-      await createAssessment({ ...formData, courseId: id });
+      const data = await createAssessment({ ...formData, courseId: id });
       await refreshAssessments();
       setShowAssessmentModal(false);
       setActiveAssessmentView("paper");
-      setSuccessMsg("Assessment generated!");
+      setSuccessMsg(
+        data.isFallback
+          ? "Live AI is at capacity right now — showing sample content."
+          : "Assessment generated!",
+      );
     } catch (err) {
       setErrorMsg(
         err.response?.data?.message || "Failed to generate assessment.",
@@ -227,7 +224,6 @@ function CourseDetail() {
     }
   };
 
-  
   // Handlers — Assignment
   const refreshAssignments = async () => {
     try {
@@ -250,7 +246,11 @@ function CourseDetail() {
       setActiveAssignment(created);
       setAssignmentView("paper");
       setShowAssignmentModal(false);
-      setSuccessMsg("Assignment created!");
+      setSuccessMsg(
+        data.isFallback
+          ? "Live AI is at capacity right now — showing sample content."
+          : "Assignment created!",
+      );
     } catch (err) {
       setErrorMsg(
         err.response?.data?.message || "Failed to generate assignment.",
@@ -285,7 +285,6 @@ function CourseDetail() {
     }
   };
 
-  
   // Loading / Error screens
   if (loading) {
     return (
@@ -318,7 +317,6 @@ function CourseDetail() {
     );
   }
 
-  
   // Derived
   const tabs = [
     { id: "syllabus", label: "Syllabus" },

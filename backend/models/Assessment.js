@@ -57,8 +57,12 @@ const assessmentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    isFallback: {
+      type: Boolean,
+      default: false,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Assessment", assessmentSchema);

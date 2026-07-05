@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 
 const questionSchema = new mongoose.Schema({
-  type:        { type: String }, // "mcq" | "short" | "long"
-  question:    { type: String },
-  options:     { type: [String], default: [] },  // MCQ only
-  correctAnswer: { type: String },               // MCQ only
-  modelAnswer: { type: String },                 // short/long
-  marks:       { type: Number, default: 1 },
-  difficulty:  { type: String },
-  bloomLevel:  { type: String },
+  type: { type: String }, // "mcq" | "short" | "long"
+  question: { type: String },
+  options: { type: [String], default: [] }, // MCQ only
+  correctAnswer: { type: String }, // MCQ only
+  modelAnswer: { type: String }, // short/long
+  marks: { type: Number, default: 1 },
+  difficulty: { type: String },
+  bloomLevel: { type: String },
 });
 
 const assignmentSchema = new mongoose.Schema(
@@ -25,12 +25,16 @@ const assignmentSchema = new mongoose.Schema(
     createdBy: { type: String, required: true },
     coveredWeeks: { type: [String], default: [] },
     difficultyDistribution: {
-      easyPercent:   { type: Number, default: 30 },
+      easyPercent: { type: Number, default: 30 },
       mediumPercent: { type: Number, default: 50 },
-      hardPercent:   { type: Number, default: 20 },
+      hardPercent: { type: Number, default: 20 },
+    },
+    isFallback: {
+      type: Boolean,
+      default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Assignment", assignmentSchema);

@@ -1,15 +1,27 @@
 const Assignment = require("../models/Assignment");
 const Course = require("../models/Course");
-const { generateAssignment, AIServiceUnavailableError } = require("../services/geminiService");
+const {
+  generateAssignment,
+  AIServiceUnavailableError,
+} = require("../services/geminiService");
 const { getCacheKey, getFromCache, setCache } = require("../middleware/cache");
+const fallbackSamples = require("../data/fallbackSamples");
 
 const createAssignment = async (req, res) => {
   try {
     const email = req.user.email;
     const {
-      courseId, title, questionCount, questionType,
-      totalMarks, dueDate, weeks, bloomLevel,
-      easyPercent, mediumPercent, hardPercent,
+      courseId,
+      title,
+      questionCount,
+      questionType,
+      totalMarks,
+      dueDate,
+      weeks,
+      bloomLevel,
+      easyPercent,
+      mediumPercent,
+      hardPercent,
     } = req.body;
 
     if (!courseId || !title) {
@@ -21,12 +33,16 @@ const createAssignment = async (req, res) => {
 
     const course = await Course.findById(courseId);
     if (!course) {
-      return res.status(404).json({ success: false, message: "Course not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
     }
 
     // Restrict assignment creation to the course owner
     if (course.createdBy !== email) {
-      return res.status(403).json({ success: false, message: "Not authorized for this course" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized for this course" });
     }
 
     const filteredSyllabus =
@@ -39,7 +55,9 @@ const createAssignment = async (req, res) => {
       questionCount,
       questionType,
       bloomLevel,
-      easyPercent, mediumPercent, hardPercent,
+      easyPercent,
+      mediumPercent,
+      hardPercent,
       weeks: (weeks || []).sort().join(","),
     });
 
@@ -50,14 +68,14 @@ const createAssignment = async (req, res) => {
     } else {
       console.log("Assignment cache miss, generating via Gemini:", cacheKey);
       aiResult = await generateAssignment({
-        courseTitle:   course.title,
-        syllabus:      filteredSyllabus,
+        courseTitle: course.title,
+        syllabus: filteredSyllabus,
         questionCount: questionCount || 5,
-        questionType:  questionType  || "mixed",
-        bloomLevel:    bloomLevel    || "Understanding",
-        easyPercent:   easyPercent   ?? 30,
+        questionType: questionType || "mixed",
+        bloomLevel: bloomLevel || "Understanding",
+        easyPercent: easyPercent ?? 30,
         mediumPercent: mediumPercent ?? 50,
-        hardPercent:   hardPercent   ?? 20,
+        hardPercent: hardPercent ?? 20,
       });
       setCache(cacheKey, aiResult);
     }
@@ -65,19 +83,32 @@ const createAssignment = async (req, res) => {
     const assignment = await Assignment.create({
       courseId,
       title,
-      totalMarks:    totalMarks || 0,
-      dueDate:       dueDate    || null,
-      questions:     aiResult.questions,
-      createdBy:     email,
-      coveredWeeks:  weeks || [],
+      totalMarks: totalMarks || 0,
+      dueDate: dueDate || null,
+      questions: aiResult.questions,
+      createdBy: email,
+      coveredWeeks: weeks || [],
       difficultyDistribution: { easyPercent, mediumPercent, hardPercent },
     });
 
     res.status(201).json({ success: true, assignment });
   } catch (error) {
     if (error instanceof AIServiceUnavailableError) {
-      const statusCode = error.reason === "quota" ? 429 : 503;
-      return res.status(statusCode).json({ success: false, message: error.message });
+      console.warn("Gemini unavailable — saving fallback assignment sample");
+      const assignment = await Assignment.create({
+        courseId,
+        title,
+        totalMarks: totalMarks || 0,
+        dueDate: dueDate || null,
+        questions: fallbackSamples.assignment.questions,
+        createdBy: email,
+        coveredWeeks: weeks || [],
+        difficultyDistribution: { easyPercent, mediumPercent, hardPercent },
+        isFallback: true,
+      });
+      return res
+        .status(201)
+        .json({ success: true, isFallback: true, assignment });
     }
     console.error("createAssignment error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -91,15 +122,21 @@ const getAssignmentsByCourse = async (req, res) => {
 
     const course = await Course.findById(courseId);
     if (!course) {
-      return res.status(404).json({ success: false, message: "Course not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Course not found" });
     }
 
     // Only the course owner can view its assignments
     if (course.createdBy !== email) {
-      return res.status(403).json({ success: false, message: "Not authorized for this course" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Not authorized for this course" });
     }
 
-    const assignments = await Assignment.find({ courseId }).sort({ createdAt: -1 });
+    const assignments = await Assignment.find({ courseId }).sort({
+      createdAt: -1,
+    });
     res.status(200).json({ success: true, assignments });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -114,13 +151,18 @@ const updateAssignment = async (req, res) => {
 
     const assignment = await Assignment.findById(id);
     if (!assignment) {
-      return res.status(404).json({ success: false, message: "Assignment not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Assignment not found" });
     }
 
     // Resolve ownership through the parent course before allowing edits
     const course = await Course.findById(assignment.courseId);
     if (!course || course.createdBy !== email) {
-      return res.status(403).json({ success: false, message: "Not authorized for this assignment" });
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized for this assignment",
+      });
     }
 
     if (questions !== undefined) assignment.questions = questions;
@@ -140,13 +182,18 @@ const deleteAssignment = async (req, res) => {
 
     const assignment = await Assignment.findById(id);
     if (!assignment) {
-      return res.status(404).json({ success: false, message: "Assignment not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Assignment not found" });
     }
 
     // Resolve ownership through the parent course before allowing deletion
     const course = await Course.findById(assignment.courseId);
     if (!course || course.createdBy !== email) {
-      return res.status(403).json({ success: false, message: "Not authorized for this assignment" });
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized for this assignment",
+      });
     }
 
     await Assignment.findByIdAndDelete(id);
