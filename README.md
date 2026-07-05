@@ -21,6 +21,9 @@ Auto-generate quizzes, MCQs, and tests from course content.
 ### 📐 Math & Formula Rendering
 KaTeX integration for clean mathematical equation rendering.
 
+### 🛡️ Resilient AI Integration
+Automatic retry with exponential backoff, multi-model fallback chain, and graceful degradation to sample content when API limits are hit — ensuring uptime even under free-tier constraints.
+
 ### ⚡ Performance Optimized
 Uses LocalStorage caching for faster performance and reduced API calls.
 
@@ -28,41 +31,32 @@ Uses LocalStorage caching for faster performance and reduced API calls.
 
 ## 🛠 Tech Stack
 
-- React.js
-- CSS
-- KaTeX
-- Axios
-- LocalStorage
+**Frontend:** React.js, Vite, Axios, KaTeX, Firebase Auth
+**Backend:** Node.js, Express.js, MongoDB (Mongoose)
+**AI:** Google Gemini API (with automatic model-fallback + retry-queue for rate-limit resilience)
+**Auth:** Firebase Authentication + Firebase Admin SDK
 
 ---
 
 ## ⚙️ Setup Instructions
 
-### 1. Prerequisites
-- Node.js installed
-
----
-
-### 2. Clone Repository
+### 1. Clone Repository
 git clone https://github.com/alisheikh2/Smart-Syllabus-AI.git
+cd Smart-Syllabus-AI
 
-cd SmartSyllabusAI
-
-### 3. Install Dependencies
+### 2. Backend Setup
+cd backend
 npm install
 
-### 4. Configuration
-Go to src/services/api.js
+# create .env with MONGO_URI, FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY, GEMINI_API_KEY
+npm run dev
 
-Set backend baseURL
+### 3. Frontend Setup
+cd ../frontend
+npm install
+npm run dev
 
-Add AI API key in backend environment variables
-
-### 5. Run Project
-npm start
-
-App will run at:
-http://localhost:5000
+App runs at: http://localhost:5173 (frontend) — connects to backend on http://localhost:5000
 
 ### 💡 Key Highlights
 KaTeX-powered math rendering
