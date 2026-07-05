@@ -32,8 +32,11 @@ Uses LocalStorage caching for faster performance and reduced API calls.
 ## 🛠 Tech Stack
 
 **Frontend:** React.js, Vite, Axios, KaTeX, Firebase Auth
+
 **Backend:** Node.js, Express.js, MongoDB (Mongoose)
+
 **AI:** Google Gemini API (with automatic model-fallback + retry-queue for rate-limit resilience)
+
 **Auth:** Firebase Authentication + Firebase Admin SDK
 
 ---
