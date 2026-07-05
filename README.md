@@ -48,7 +48,7 @@ cd Smart-Syllabus-AI
 cd backend
 npm install
 
-# create .env with MONGO_URI, FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY, GEMINI_API_KEY
+### create .env with MONGO_URI, FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY, GEMINI_API_KEY
 npm run dev
 
 ### 3. Frontend Setup
