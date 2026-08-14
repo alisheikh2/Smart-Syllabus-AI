@@ -1,126 +1,23 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Icon from "./ui/Icon";
 
-function CourseFormModal({ onClose, onSubmit, loading }) {
-  const [topic, setTopic] = useState("");
-  const [audience, setAudience] = useState("");
-  const [duration, setDuration] = useState("");
-  const [difficulty, setDifficulty] = useState("Beginner");
-  const [cooldown, setCooldown] = useState(0);
+const progressSteps = ["Understanding your topic…", "Building the syllabus…", "Generating learning material…", "Preparing assessments…"];
 
-  const isDisabled = loading || cooldown > 0;
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!topic || !audience || !duration) return;
-    if (isDisabled) return;
-
-    onSubmit({ topic, audience, duration, difficulty });
-
-    // Prevent duplicate submissions via rapid re-clicks
-    setCooldown(8);
-    const interval = setInterval(() => {
-      setCooldown((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="rise-in bg-[#1C1A33] border border-white/10 shadow-2xl rounded-3xl p-6 sm:p-8 w-full max-w-md">
-
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-xl font-bold text-white">
-            Create new course
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-[#A9A4C2] hover:text-white transition-colors duration-200 text-xl leading-none"
-          >
-            ×
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[#A9A4C2] text-xs font-medium uppercase tracking-wide">
-              Course topic
-            </label>
-            <input
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g. JavaScript Promises"
-              className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[#A9A4C2] text-xs font-medium uppercase tracking-wide">
-              Target audience
-            </label>
-            <input
-              value={audience}
-              onChange={(e) => setAudience(e.target.value)}
-              placeholder="e.g. BSCS Students"
-              className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
-            />
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-              <label className="text-[#A9A4C2] text-xs font-medium uppercase tracking-wide">
-                Duration
-              </label>
-              <input
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-                placeholder="e.g. 8 Weeks"
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
-              />
-            </div>
-
-            <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-              <label className="text-[#A9A4C2] text-xs font-medium uppercase tracking-wide">
-                Difficulty
-              </label>
-              <select
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
-              >
-                <option className="bg-[#1C1A33]" value="Beginner">Beginner</option>
-                <option className="bg-[#1C1A33]" value="Intermediate">Intermediate</option>
-                <option className="bg-[#1C1A33]" value="Advanced">Advanced</option>
-              </select>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isDisabled}
-            className="mt-2 bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Generating...
-              </>
-            ) : cooldown > 0 ? (
-              `Please wait (${cooldown}s)`
-            ) : (
-              "Generate course"
-            )}
-          </button>
-
-        </form>
-      </div>
-    </div>
-  );
+export default function CourseFormModal({ onClose, onSubmit, loading }) {
+  const [topic,setTopic]=useState(""); const [audience,setAudience]=useState(""); const [duration,setDuration]=useState(""); const [difficulty,setDifficulty]=useState("Beginner"); const [depth,setDepth]=useState("Balanced"); const [step,setStep]=useState(0); const [error,setError]=useState("");
+  const dialog=useRef(null); const first=useRef(null);
+  useEffect(()=>{ first.current?.focus(); const key=e=>{ if(e.key==="Escape"&&!loading) onClose(); if(e.key==="Tab"&&dialog.current){const f=[...dialog.current.querySelectorAll("button,input,select")].filter(x=>!x.disabled); if(e.shiftKey&&document.activeElement===f[0]){e.preventDefault();f.at(-1).focus()}else if(!e.shiftKey&&document.activeElement===f.at(-1)){e.preventDefault();f[0].focus()}}}; document.addEventListener("keydown",key); document.body.style.overflow="hidden"; return()=>{document.removeEventListener("keydown",key);document.body.style.overflow=""}},[onClose,loading]);
+  useEffect(()=>{if(!loading)return; const id=setInterval(()=>setStep(s=>(s+1)%progressSteps.length),2400); return()=>clearInterval(id)},[loading]);
+  const submit=e=>{e.preventDefault(); if(!topic.trim()||!audience.trim()||!duration.trim()){setError("Please complete the topic, audience, and duration fields.");return} setError(""); onSubmit({topic:topic.trim(),audience:audience.trim(),duration:duration.trim(),difficulty,contentDepth:depth});};
+  return <div className="modal-overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&!loading)onClose()}}><section ref={dialog} className="modal-card" role="dialog" aria-modal="true" aria-labelledby="course-modal-title">
+    <header className="modal-header"><div><span className="section-kicker">AI course generator</span><h2 id="course-modal-title">Create a learning experience</h2><p>Tell us what you want to learn. AI will build the complete curriculum.</p></div><button className="icon-button" aria-label="Close dialog" onClick={onClose} disabled={loading}><Icon name="close"/></button></header>
+    {loading ? <div className="generation-state" role="status" aria-live="polite"><div className="generation-orb"><i/><i/><i/></div><span>Creating your course</span><h3>{progressSteps[step]}</h3><p>SmartSyllabusAI is structuring content around your goals. This may take a moment.</p><div className="generation-steps">{progressSteps.map((x,i)=><i key={x} className={i<=step?"active":""}/>)}</div></div> : <form onSubmit={submit} className="modal-form">
+      <label>Course topic<span>What would you like to master?</span><input ref={first} value={topic} onChange={e=>setTopic(e.target.value)} placeholder="e.g. JavaScript Promises" autoComplete="off"/></label>
+      <label>Target audience<span>Who is this learning path for?</span><input value={audience} onChange={e=>setAudience(e.target.value)} placeholder="e.g. Computer science students"/></label>
+      <div className="form-row"><label>Duration<span>Preferred pace</span><input value={duration} onChange={e=>setDuration(e.target.value)} placeholder="e.g. 8 weeks"/></label><label>Difficulty<span>Starting level</span><select value={difficulty} onChange={e=>setDifficulty(e.target.value)}><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></label></div>
+      <label>Content depth<span>How comprehensive should it be?</span><select value={depth} onChange={e=>setDepth(e.target.value)}><option>Concise</option><option>Balanced</option><option>Comprehensive</option></select></label>
+      {error&&<p className="form-error" role="alert">{error}</p>}
+      <footer className="modal-actions"><button type="button" className="button secondary" onClick={onClose}>Cancel</button><button className="button primary" type="submit"><Icon name="spark"/>Generate with AI</button></footer>
+    </form>}
+  </section></div>;
 }
-
-export default CourseFormModal;

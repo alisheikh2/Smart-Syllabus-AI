@@ -4,188 +4,129 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   updateProfile,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
 } from "firebase/auth";
-
 import { auth, googleProvider } from "../config/firebase";
 import { useAuth } from "../hooks/useAuth";
+import { Brand } from "./layout/AppShell";
+import Icon from "./ui/Icon";
+import "../auth.css";
 
-function Login() {
+const friendlyAuthError = (error) => {
+  const code = error?.code || "";
+  if (code.includes("invalid-credential") || code.includes("wrong-password") || code.includes("user-not-found")) return "The email or password is incorrect. Check both fields and try again.";
+  if (code.includes("email-already-in-use")) return "An account already exists for this email. Sign in instead or reset the password.";
+  if (code.includes("weak-password")) return "Use at least six characters and avoid an easily guessed password.";
+  if (code.includes("invalid-email")) return "Enter a valid email address, such as name@example.com.";
+  if (code.includes("too-many-requests")) return "Sign-in has been temporarily limited. Wait a moment before trying again.";
+  if (code.includes("popup-closed")) return "Google sign-in was closed before it finished.";
+  if (code.includes("popup-blocked")) return "Your browser blocked the Google sign-in window. Allow popups and try again.";
+  if (code.includes("network")) return "The authentication service could not be reached. Check your connection and try again.";
+  return "Authentication could not be completed. Please try again.";
+};
+
+export default function Login() {
   const { refreshUser } = useAuth();
+  const [mode, setMode] = useState("signin");
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [isRegister, setIsRegister] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
+  const isRegister = mode === "register";
 
-  const handleGoogleLogin = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  const handleEmailAuth = async () => {
+  const changeMode = (nextMode) => {
+    setMode(nextMode);
     setError("");
     setInfo("");
+  };
 
+  const handleGoogleLogin = async () => {
+    setBusy(true); setError(""); setInfo("");
+    try { await signInWithPopup(auth, googleProvider); }
+    catch (err) { setError(friendlyAuthError(err)); }
+    finally { setBusy(false); }
+  };
+
+  const handleEmailAuth = async (event) => {
+    event.preventDefault();
+    setError(""); setInfo("");
+    if (isRegister && name.trim().length < 2) { setError("Enter the name you want displayed in your learning workspace."); return; }
+    if (password.length < 6) { setError("Your password must contain at least six characters."); return; }
+    setBusy(true);
     try {
       if (isRegister) {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-        await updateProfile(userCredential.user, {
-          displayName: name,
-        });
-
+        const credential = await createUserWithEmailAndPassword(auth, email.trim(), password);
+        await updateProfile(credential.user, { displayName: name.trim() });
         await refreshUser();
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, email.trim(), password);
       }
-    } catch (err) {
-      setError(err.message);
-    }
+    } catch (err) { setError(friendlyAuthError(err)); }
+    finally { setBusy(false); }
   };
 
   const handleForgotPassword = async () => {
-    setError("");
-    setInfo("");
-
-    if (!email) {
-      setError("Please enter your email first");
-      return;
-    }
-
+    setError(""); setInfo("");
+    if (!email.trim()) { setError("Enter your email first so we know where to send the reset link."); return; }
+    setBusy(true);
     try {
-      await sendPasswordResetEmail(auth, email);
-      setInfo("If this email is registered, a reset link has been sent. Check your inbox and spam folder.");
-    } catch (err) {
-      setError(err.message);
-    }
+      await sendPasswordResetEmail(auth, email.trim());
+      setInfo("Password reset instructions have been sent. Check your inbox and spam folder.");
+    } catch (err) { setError(friendlyAuthError(err)); }
+    finally { setBusy(false); }
   };
 
-  return (
-    <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-[#15132B] ruled-bg">
-
-      <div
-        className="absolute w-[480px] h-[480px] rounded-full blob-a opacity-30 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #7C5CFF, transparent 70%)", top: "-10%", left: "-10%" }}
-      />
-      <div
-        className="absolute w-[420px] h-[420px] rounded-full blob-b opacity-25 blur-3xl pointer-events-none"
-        style={{ background: "radial-gradient(circle, #FF6B5E, transparent 70%)", bottom: "-10%", right: "-5%" }}
-      />
-
-      <div
-        className="relative z-10 rise-in bg-[#FAF8F3]/[0.06] backdrop-blur-2xl border border-white/10 shadow-2xl rounded-3xl p-9 w-96 flex flex-col gap-5"
-        style={{ animationDelay: "0.05s" }}
-      >
-
-        <div className="flex flex-col gap-1 mb-1 rise-in" style={{ animationDelay: "0.1s" }}>
-          <span className="text-[#A9A4C2] text-xs font-medium tracking-widest uppercase">
-            Welcome to
-          </span>
-          <h1 className="font-display text-3xl font-bold text-white leading-tight">
-            SmartSyllabus<span className="text-[#7C5CFF]">AI</span>
-          </h1>
+  return <main className="auth-page">
+    <section className="auth-story" aria-label="SmartSyllabusAI introduction">
+      <div className="auth-story-top"><Brand/><span className="auth-status"><i/>AI curriculum service online</span></div>
+      <div className="auth-story-copy">
+        <span className="auth-eyebrow">A clearer way to build knowledge</span>
+        <h1>One topic.<br/><span>A complete learning path.</span></h1>
+        <p>Build sequenced modules, focused study material, Bloom-aligned assessments and practical assignments in one editable workspace.</p>
+        <div className="auth-outcomes">
+          <article><span>01</span><div><strong>Structure before content</strong><small>Turn scope and duration into a progression learners can follow.</small></div></article>
+          <article><span>02</span><div><strong>Assess with intent</strong><small>Control difficulty, marks and cognitive depth for every assessment.</small></div></article>
+          <article><span>03</span><div><strong>Edit, reuse and export</strong><small>Refine generated material and keep each course ready to revisit.</small></div></article>
         </div>
-
-        <button
-          onClick={handleGoogleLogin}
-          className="group rise-in relative bg-white text-[#15132B] py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/20 active:scale-[0.98] flex items-center justify-center gap-3 overflow-hidden"
-          style={{ animationDelay: "0.15s" }}
-        >
-          <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-          <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-            <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
-            <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
-            <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
-            <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
-          </svg>
-          <span className="relative z-10">Sign in with Google</span>
-        </button>
-
-        <div className="flex items-center gap-3 rise-in" style={{ animationDelay: "0.2s" }}>
-          <div className="flex-1 h-px bg-white/15" />
-          <span className="text-[#A9A4C2] text-xs font-medium">OR</span>
-          <div className="flex-1 h-px bg-white/15" />
-        </div>
-
-        <div className="flex flex-col gap-3 rise-in" style={{ animationDelay: "0.25s" }}>
-          {isRegister && (
-            <input
-              placeholder="Full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
-            />
-          )}
-
-          <input
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
-          />
-
-          <input
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="px-4 py-3 rounded-xl bg-white/[0.07] border border-white/10 text-white placeholder-[#A9A4C2] text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200"
-          />
-
-          {!isRegister && (
-            <p
-              onClick={handleForgotPassword}
-              className="text-[#A9A4C2] text-xs text-right cursor-pointer hover:text-[#7C5CFF] transition-colors duration-200 -mt-1"
-            >
-              Forgot password?
-            </p>
-          )}
-        </div>
-
-        {error && (
-          <p className="fade-in text-[#FF6B5E] text-sm bg-[#FF6B5E]/10 border border-[#FF6B5E]/20 rounded-lg px-3 py-2">
-            {error}
-          </p>
-        )}
-
-        {info && (
-          <p className="fade-in text-[#7C5CFF] text-sm bg-[#7C5CFF]/10 border border-[#7C5CFF]/20 rounded-lg px-3 py-2">
-            {info}
-          </p>
-        )}
-
-        <button
-          onClick={handleEmailAuth}
-          className="rise-in bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-[0.98]"
-          style={{ animationDelay: "0.3s" }}
-        >
-          {isRegister ? "Create account" : "Login"}
-        </button>
-
-        <p
-          onClick={() => setIsRegister(!isRegister)}
-          className="rise-in text-[#A9A4C2] text-center text-sm cursor-pointer transition-colors duration-200"
-          style={{ animationDelay: "0.35s" }}
-        >
-          {isRegister ? (
-            <>Already have an account? <span className="text-[#7C5CFF] font-medium hover:text-[#9B82FF]">Login instead</span></>
-          ) : (
-            <>New here? <span className="text-[#7C5CFF] font-medium hover:text-[#9B82FF]">Create account</span></>
-          )}
-        </p>
-
       </div>
-    </div>
-  );
-}
+      <div className="auth-story-foot"><span>Built for students, educators and independent learners.</span><div><i>KaTeX</i><i>PDF</i><i>Bloom</i></div></div>
+    </section>
 
-export default Login;
+    <section className="auth-panel" aria-labelledby="auth-title">
+      <div className="auth-mobile-brand"><Brand/></div>
+      <div className="auth-card">
+        <header>
+          <span className="auth-eyebrow">Your learning workspace</span>
+          <h2 id="auth-title">{isRegister ? "Create your account" : "Welcome back"}</h2>
+          <p>{isRegister ? "Set up a workspace for the courses and material you generate." : "Sign in to continue building and reviewing your courses."}</p>
+        </header>
+
+        <div className="auth-switch" role="tablist" aria-label="Authentication options">
+          <button type="button" role="tab" aria-selected={!isRegister} className={!isRegister ? "active" : ""} onClick={() => changeMode("signin")}>Sign in</button>
+          <button type="button" role="tab" aria-selected={isRegister} className={isRegister ? "active" : ""} onClick={() => changeMode("register")}>Create account</button>
+        </div>
+
+        <button type="button" className="google-auth-button" onClick={handleGoogleLogin} disabled={busy}>
+          <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3A12 12 0 1 1 32 15l5.7-5.6A20 20 0 1 0 44 24c0-1.3-.1-2.6-.4-3.9Z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8A12 12 0 0 1 32 15l5.7-5.6A20 20 0 0 0 6.3 14.7Z"/><path fill="#4CAF50" d="M24 44c5 0 9.7-1.9 13.3-5.1l-6.2-5.2A12 12 0 0 1 12.7 28l-6.5 5A20 20 0 0 0 24 44Z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3a12 12 0 0 1-4.2 5.7l6.2 5.2C41.2 35.3 44 30 44 24c0-1.3-.1-2.7-.4-4Z"/></svg>
+          Continue with Google
+        </button>
+
+        <div className="auth-divider"><span>or use your email</span></div>
+
+        <form className="auth-form" onSubmit={handleEmailAuth} noValidate>
+          {isRegister && <label>Display name<span>Used to personalize your workspace.</span><input type="text" value={name} onChange={e=>setName(e.target.value)} autoComplete="name" placeholder="e.g. Ayesha Khan" required/></label>}
+          <label>Email address<span>{isRegister ? "Used for sign-in and account recovery." : "The email linked to your workspace."}</span><input type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" placeholder="name@example.com" required/></label>
+          <label>Password<span>{isRegister ? "Use at least six characters." : "Enter your account password."}</span><div className="password-field"><input type={showPassword ? "text" : "password"} value={password} onChange={e=>setPassword(e.target.value)} autoComplete={isRegister ? "new-password" : "current-password"} placeholder={isRegister ? "Create a password" : "Enter your password"} required/><button type="button" onClick={()=>setShowPassword(v=>!v)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? "Hide" : "Show"}</button></div></label>
+          {!isRegister && <button type="button" className="forgot-button" onClick={handleForgotPassword} disabled={busy}>Forgot password?</button>}
+          {error && <div className="auth-message error" role="alert"><Icon name="close" size={15}/><span>{error}</span></div>}
+          {info && <div className="auth-message info" role="status"><Icon name="check" size={15}/><span>{info}</span></div>}
+          <button className="auth-submit" type="submit" disabled={busy}>{busy ? <><i/>Please wait…</> : isRegister ? <>Create my workspace <Icon name="arrow" size={16}/></> : <>Sign in to workspace <Icon name="arrow" size={16}/></>}</button>
+        </form>
+        <p className="auth-terms">By continuing, you agree to use generated material responsibly and review AI output before sharing it with learners.</p>
+      </div>
+    </section>
+  </main>;
+}

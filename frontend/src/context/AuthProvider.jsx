@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../config/firebase";
+import { auth, isFirebaseConfigured } from "../config/firebase";
 import { AuthContext } from "./AuthContext";
 import { syncUser } from "../services/userService";
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(() => isFirebaseConfigured ? null : ({ displayName: "Demo Learner", email: "demo@smartsyllabus.ai", photoURL: null, isDemo: true }));
+  const [loading, setLoading] = useState(isFirebaseConfigured);
 
   useEffect(() => {
+    if (!isFirebaseConfigured) return undefined;
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       setLoading(false);

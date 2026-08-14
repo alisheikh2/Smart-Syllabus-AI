@@ -19,6 +19,8 @@ import EditableStudyMaterial from "../components/EditableStudyMaterial";
 import EditableAssessment from "../components/EditableAssessment";
 import EditableAssignment from "../components/EditableAssignment";
 import Toast from "../components/Toast";
+import MathText from "../components/MathText";
+import AppShell from "../components/layout/AppShell";
 import {
   generateSyllabusPDF,
   generateStudyMaterialPDF,
@@ -334,7 +336,8 @@ function CourseDetail() {
 
   // Render
   return (
-    <div className="min-h-screen relative overflow-hidden bg-[#15132B] ruled-bg">
+    <AppShell>
+    <div className="min-h-screen relative overflow-hidden bg-[#15132B] ruled-bg course-detail-page">
       {/* Blob */}
       <div
         className="absolute w-[480px] h-[480px] rounded-full blob-a opacity-15 blur-3xl pointer-events-none"
@@ -356,14 +359,16 @@ function CourseDetail() {
 
         {/* ── Course title + Edit toggle ── */}
         <div
-          className="rise-in mb-8 flex items-start justify-between gap-4"
+          className="rise-in mb-8 flex items-start justify-between gap-4 course-detail-hero"
           style={{ animationDelay: "0.05s" }}
         >
           <div>
             <h1 className="font-display text-3xl font-bold text-white mb-3">
               {course.title}
             </h1>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <span className="text-xs text-[#9B7CFF] bg-[#7C5CFF]/10 px-3 py-1.5 rounded-md">✦ AI generated</span>
+              {course.createdAt && <span className="text-xs text-[#A9A4C2] bg-white/5 px-3 py-1.5 rounded-md">{new Date(course.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>}
               {course.duration && (
                 <span className="text-xs text-[#A9A4C2] bg-white/5 px-3 py-1.5 rounded-md">
                   {course.duration}
@@ -432,12 +437,13 @@ function CourseDetail() {
                 onChange={handleSaveSyllabus}
               />
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 syllabus-timeline">
                 {course.syllabus?.map((week, index) => (
                   <div
                     key={index}
-                    className="bg-[#FAF8F3]/[0.06] border border-white/10 rounded-2xl p-5"
+                    className="bg-[#FAF8F3]/[0.06] border border-white/10 rounded-2xl p-5 timeline-module"
                   >
+                    <span className="timeline-node">{String(index + 1).padStart(2, "0")}</span>
                     <h3 className="text-white font-medium mb-2">{week.week}</h3>
                     <ul className="flex flex-col gap-1.5">
                       {week.topics?.map((topic, i) => (
@@ -482,8 +488,8 @@ function CourseDetail() {
                     <h4 className="text-white font-medium mb-2 text-sm">
                       Summary
                     </h4>
-                    <p className="text-[#A9A4C2] text-sm leading-relaxed">
-                      {course.studyMaterial.summary}
+                    <p className="text-[#A9A4C2] text-sm leading-relaxed math-content">
+                      <MathText text={course.studyMaterial.summary} />
                     </p>
                   </div>
                 )}
@@ -506,7 +512,7 @@ function CourseDetail() {
                             className="text-[#A9A4C2] text-sm flex items-start gap-2"
                           >
                             <span className="text-[#7C5CFF] mt-1">•</span>
-                            {item}
+                            <span className="math-content"><MathText text={String(item)} /></span>
                           </li>
                         ))}
                       </ul>
@@ -1262,6 +1268,7 @@ function CourseDetail() {
         onDismiss={() => setErrorMsg("")}
       />
     </div>
+    </AppShell>
   );
 }
 

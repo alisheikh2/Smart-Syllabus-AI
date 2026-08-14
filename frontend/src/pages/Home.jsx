@@ -1,293 +1,62 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getCourses, createCourse } from "../services/courseService";
 import CourseFormModal from "../components/CourseFormModal";
 import Toast from "../components/Toast";
+import AppShell from "../components/layout/AppShell";
+import Icon from "../components/ui/Icon";
 
-function Home() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [courses, setCourses] = useState([]);
-  const [loadingCourses, setLoadingCourses] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [formError, setFormError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+const DEMO_COURSES = [
+  {_id:"demo-ai",title:"Artificial Intelligence Foundations",audience:"University students",duration:"8 weeks",difficulty:"Intermediate",createdAt:"2026-08-12",syllabus:Array(8).fill({})},
+  {_id:"demo-web",title:"Modern Web Development",audience:"Aspiring developers",duration:"6 weeks",difficulty:"Beginner",createdAt:"2026-08-09",syllabus:Array(6).fill({})},
+  {_id:"demo-data",title:"Data Structures & Algorithms",audience:"Computer science learners",duration:"10 weeks",difficulty:"Advanced",createdAt:"2026-08-04",syllabus:Array(10).fill({})}
+];
+const levelClass = value => `level-pill ${String(value || "adaptive").toLowerCase()}`;
 
-  const getName = () => {
-    if (user?.displayName) return user.displayName;
-    if (user?.email) return user.email.split("@")[0];
-    return "User";
-  };
-
-  // Maps difficulty level to its badge color classes
-  const getDifficultyColor = (difficulty) => {
-    const map = {
-      Beginner: "text-emerald-400 bg-emerald-400/10",
-      Intermediate: "text-amber-400 bg-amber-400/10",
-      Advanced: "text-rose-400 bg-rose-400/10",
-    };
-    return map[difficulty] || "text-[#A9A4C2] bg-white/5";
-  };
-
-  useEffect(() => {
-    if (!user?.email) return;
-    let isMounted = true;
-
-    const loadCourses = async () => {
-      try {
-        const data = await getCourses();
-        if (isMounted) setCourses(data.courses);
-      } catch (error) {
-        console.error("Failed to fetch courses:", error.message);
-      } finally {
-        if (isMounted) setLoadingCourses(false);
-      }
-    };
-
-    loadCourses();
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
-
-  const refreshCourses = async () => {
-    try {
-      const data = await getCourses();
-      setCourses(data.courses);
-    } catch (error) {
-      console.error("Failed to refresh courses:", error.message);
-    }
-  };
-
-  const handleCreateCourse = async (formData) => {
-    setGenerating(true);
-    setFormError("");
-
-    try {
-      const data = await createCourse({ ...formData, email: user.email });
-      await refreshCourses();
-      setShowModal(false);
-      setSuccessMsg(
-        data.isFallback
-          ? "Live AI is at capacity right now — showing sample content."
-          : "Course created successfully!",
-      );
-    } catch (error) {
-      setFormError(error.userMessage || "Failed to generate course.");
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen relative overflow-hidden bg-[#15132B] ruled-bg">
-      {/* Background blobs */}
-      <div
-        className="absolute w-[480px] h-[480px] rounded-full blob-a opacity-20 blur-3xl pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, #7C5CFF, transparent 70%)",
-          top: "-10%",
-          right: "-10%",
-        }}
-      />
-      <div
-        className="absolute w-[420px] h-[420px] rounded-full blob-b opacity-15 blur-3xl pointer-events-none"
-        style={{
-          background: "radial-gradient(circle, #FF6B5E, transparent 70%)",
-          bottom: "-10%",
-          left: "-5%",
-        }}
-      />
-
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Header */}
-        <div
-          className="rise-in flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 sm:mb-10"
-          style={{ animationDelay: "0.05s" }}
-        >
-          <div className="flex items-center gap-4 min-w-0">
-            <div className="relative flex-shrink-0">
-              <div className="absolute inset-0 rounded-full bg-[#7C5CFF]/30 blur-lg" />
-              {user?.photoURL ? (
-                <img
-                  src={user.photoURL}
-                  alt="profile"
-                  className="relative w-12 h-12 rounded-full border-2 border-white/20"
-                />
-              ) : (
-                <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-[#7C5CFF] to-[#6845E8] flex items-center justify-center text-lg font-bold text-white">
-                  {getName().charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="text-[#A9A4C2] text-xs font-medium tracking-widest uppercase">
-                Welcome back
-              </p>
-              <h1 className="font-display text-xl font-bold text-white truncate">
-                {getName()}
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <button
-              onClick={() => navigate("/analytics")}
-              className="flex-1 sm:flex-initial bg-white/[0.06] border border-white/10 hover:border-[#7C5CFF]/40 hover:bg-[#7C5CFF]/10 transition-all duration-200 text-[#A9A4C2] hover:text-white px-4 py-2.5 rounded-xl font-medium text-sm whitespace-nowrap"
-            >
-              Analytics
-            </button>
-
-            <button
-              onClick={logout}
-              className="flex-1 sm:flex-initial bg-[#FF6B5E]/10 border border-[#FF6B5E]/30 hover:bg-[#FF6B5E] hover:border-[#FF6B5E] transition-all duration-200 text-[#FF6B5E] hover:text-white px-5 py-2.5 rounded-xl font-medium text-sm active:scale-[0.98] whitespace-nowrap"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-
-        {/* Stats bar */}
-        <div
-          className="rise-in grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8"
-          style={{ animationDelay: "0.08s" }}
-        >
-          {[
-            { label: "Total Courses", value: courses.length },
-            {
-              label: "Assessments",
-              value: courses.length > 0 ? `${courses.length}+` : 0,
-            },
-            {
-              label: "Difficulty Mix",
-              value:
-                [
-                  ...new Set(courses.map((c) => c.difficulty).filter(Boolean)),
-                ].join(", ") || "—",
-            },
-          ].map((stat, i) => (
-            <div
-              key={i}
-              className="bg-[#FAF8F3]/[0.04] border border-white/10 rounded-2xl p-4 text-center overflow-hidden"
-            >
-              <p className="text-white font-display font-bold text-xl sm:text-2xl break-words">
-                {stat.value}
-              </p>
-              <p className="text-[#A9A4C2] text-xs mt-1">{stat.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Hero CTA */}
-        <div
-          className="rise-in bg-[#FAF8F3]/[0.06] backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5"
-          style={{ animationDelay: "0.1s" }}
-        >
-          <div>
-            <h2 className="font-display text-xl sm:text-2xl font-bold text-white mb-1">
-              Build your next course
-            </h2>
-            <p className="text-[#A9A4C2] text-sm">
-              Generate a syllabus, study material, and assessments in minutes.
-            </p>
-          </div>
-          <button
-            onClick={() => setShowModal(true)}
-            className="w-full sm:w-auto bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 hover:-translate-y-0.5 active:scale-[0.98] whitespace-nowrap"
-          >
-            + Create new course
-          </button>
-        </div>
-
-        {/* Courses grid */}
-        <div className="rise-in" style={{ animationDelay: "0.15s" }}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[#A9A4C2] text-xs font-medium tracking-widest uppercase">
-              Your courses ({courses.length})
-            </h3>
-          </div>
-
-          {loadingCourses ? (
-            <div className="flex items-center gap-3 text-[#A9A4C2] text-sm">
-              <div className="w-4 h-4 border-2 border-[#7C5CFF]/30 border-t-[#7C5CFF] rounded-full animate-spin" />
-              Loading courses...
-            </div>
-          ) : courses.length === 0 ? (
-            <div className="bg-[#FAF8F3]/[0.04] border border-white/10 rounded-2xl p-10 text-center">
-              <p className="text-white font-medium mb-1">No courses yet</p>
-              <p className="text-[#A9A4C2] text-sm">
-                Create your first course to see it here.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {courses.map((course, idx) => (
-                <div
-                  key={course._id}
-                  onClick={() => navigate(`/course/${course._id}`)}
-                  className="rise-in bg-[#FAF8F3]/[0.06] border border-white/10 rounded-2xl p-5 hover:border-[#7C5CFF]/40 hover:bg-[#FAF8F3]/[0.09] hover:-translate-y-1 hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-200 cursor-pointer group"
-                  style={{ animationDelay: `${0.05 * idx}s` }}
-                >
-                  {/* Course title */}
-                  <h4 className="text-white font-medium mb-3 group-hover:text-[#9B82FF] transition-colors duration-200 line-clamp-2">
-                    {course.title}
-                  </h4>
-
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {course.duration && (
-                      <span className="text-xs text-[#A9A4C2] bg-white/5 px-2 py-1 rounded-md">
-                        {course.duration}
-                      </span>
-                    )}
-                    {course.difficulty && (
-                      <span
-                        className={`text-xs px-2 py-1 rounded-md font-medium ${getDifficultyColor(course.difficulty)}`}
-                      >
-                        {course.difficulty}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Created date */}
-                  <p className="text-[#A9A4C2]/50 text-xs mt-3">
-                    {new Date(course.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {showModal && (
-        <CourseFormModal
-          onClose={() => {
-            setShowModal(false);
-            setFormError("");
-          }}
-          onSubmit={handleCreateCourse}
-          loading={generating}
-        />
-      )}
-
-      <Toast
-        message={formError}
-        type="error"
-        onDismiss={() => setFormError("")}
-      />
-      <Toast
-        message={successMsg}
-        type="success"
-        onDismiss={() => setSuccessMsg("")}
-      />
-    </div>
-  );
+function ProductPreview({ name, courseCount, modules }) {
+  return <div className="hero-visual" aria-hidden="true"><div className="visual-shape"/><div className="visual-accent"/><div className="product-window">
+    <div className="window-bar"><span/><span/><span/><strong>SmartSyllabusAI</strong><i>AI ONLINE</i></div>
+    <div className="window-body"><aside><b/><i className="active"/><i/><i/><i/></aside><section>
+      <small>WORKSPACE OVERVIEW</small><h3>Good morning, {name}.</h3>
+      <div className="preview-metrics"><div><span>COURSES</span><strong>{courseCount}</strong></div><div><span>MODULES</span><strong>{modules}</strong></div><div><span>STATUS</span><strong>Ready</strong></div></div>
+      <div className="preview-generator"><span>AI COURSE GENERATOR</span><strong>What do you want to learn?</strong><div>Try “Product design systems” <b>Generate ✦</b></div></div>
+      <div className="preview-courses"><div><i/><strong>Machine Learning Foundations</strong><span>8 weeks · Intermediate</span></div><div><i/><strong>Modern Product Design</strong><span>6 weeks · Beginner</span></div></div>
+    </section></div>
+  </div></div>;
 }
 
-export default Home;
+function CourseCard({ course, onOpen }) {
+  return <article className="modern-course-card"><div className="course-card-head"><span className="ai-course-label"><Icon name="spark" size={12}/>AI course</span><span className={levelClass(course.difficulty)}>{course.difficulty || "Adaptive"}</span></div><h3>{course.title}</h3><p>{course.audience ? `Designed for ${course.audience}.` : "A structured learning path with editable material and assessments."}</p><div className="course-card-meta"><span><Icon name="clock" size={14}/>{course.duration || "Self paced"}</span><span>{course.syllabus?.length || 0} modules</span></div><button onClick={onOpen}>Open course <Icon name="arrow" size={15}/></button></article>;
+}
+
+export default function Home() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [courses,setCourses]=useState([]); const [loading,setLoading]=useState(true); const [modal,setModal]=useState(false); const [generating,setGenerating]=useState(false); const [error,setError]=useState(""); const [success,setSuccess]=useState("");
+  const firstName=user?.displayName?.split(" ")[0]||user?.email?.split("@")[0]||"Learner";
+  const refresh=async()=>{const data=await getCourses();setCourses(data.courses||[])};
+  useEffect(()=>{if(!user?.email)return;if(user.isDemo){queueMicrotask(()=>{setCourses(DEMO_COURSES);setLoading(false)});return}let mounted=true;getCourses().then(d=>mounted&&setCourses(d.courses||[])).catch(()=>mounted&&setError("Your course library could not be reached. Check the API connection and try again.")).finally(()=>mounted&&setLoading(false));return()=>{mounted=false}},[user]);
+  useEffect(()=>{const id=window.location.hash.slice(1);if(id)requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView({behavior:"smooth"}))},[]);
+  const modules=useMemo(()=>courses.reduce((n,c)=>n+(c.syllabus?.length||0),0),[courses]);
+  const create=async form=>{setGenerating(true);setError("");try{if(user.isDemo){await new Promise(resolve=>setTimeout(resolve,1600));setCourses(prev=>[{_id:`demo-${Date.now()}`,title:form.topic,audience:form.audience,duration:form.duration,difficulty:form.difficulty,createdAt:new Date().toISOString(),syllabus:Array.from({length:Math.max(4,parseInt(form.duration)||6)},()=>({}))},...prev]);setModal(false);setSuccess("The preview course was added to your library. Production accounts save the same result through the course API.");return}const data=await createCourse({...form,email:user.email});await refresh();setModal(false);setSuccess(data.isFallback?"AI capacity was limited, so a complete sample course was prepared for you.":"Your course is ready. Open it from the course library.")}catch(e){setError(e.userMessage||"Course generation did not complete. Review the details and try again.")}finally{setGenerating(false)}};
+  const openCourse=course=>{if(user?.isDemo){setSuccess("This sample card demonstrates the course library. Connect Firebase and the API to open saved course data.");return}navigate(`/course/${course._id}`)};
+
+  return <AppShell onGenerate={()=>setModal(true)}><div className="modern-home">
+    <section className="modern-hero page-width"><div className="modern-hero-copy"><span className="announcement"><b>NEW</b> Curriculum engine 2.0 <i>→</i></span><h1>Learning paths,<br/><span>beautifully built.</span></h1><p>Turn one learning goal into a coherent course—with sequenced modules, focused study material, Bloom-aligned assessments and practical assignments.</p><div className="modern-hero-actions"><button className="modern-button primary" onClick={()=>setModal(true)}><Icon name="spark"/>Generate your first course</button><button className="modern-button secondary" onClick={()=>document.getElementById("product")?.scrollIntoView({behavior:"smooth"})}>See the workflow <Icon name="arrow"/></button></div><div className="hero-note"><span><i>A</i><i>K</i><i>M</i></span><p><strong>Built for deliberate learning</strong>From topic to editable curriculum in minutes.</p></div></div><ProductPreview name={firstName} courseCount={courses.length} modules={modules}/></section>
+
+    <section className="confidence-strip"><div className="page-width"><span>One workspace for</span><strong>Syllabi</strong><strong>Study material</strong><strong>Assessments</strong><strong>Assignments</strong><strong>PDF exports</strong></div></section>
+
+    <section className="modern-section page-width" id="product"><header className="modern-section-head"><div><span className="modern-eyebrow">One intelligent workspace</span><h2>Every part of the course has a purpose.</h2></div><p>SmartSyllabusAI connects course structure, study material and assessment design. Each output can be reviewed, edited and exported without leaving the workspace.</p></header><div className="product-bento">
+      <article className="bento-card bento-blue"><span>01 · STRUCTURE</span><h3>From topic to teachable sequence</h3><p>The generator turns scope, audience and duration into a module order that builds knowledge progressively.</p><div className="workflow-steps"><div><b>1</b><strong>Define</strong><small>Topic and audience</small></div><div><b>2</b><strong>Sequence</strong><small>Modules and concepts</small></div><div><b>3</b><strong>Develop</strong><small>Material and examples</small></div><div><b>4</b><strong>Assess</strong><small>Questions and tasks</small></div></div></article>
+      <article className="bento-card bento-mint" id="assessment-design"><span>02 · ASSESS</span><h3>Questions with cognitive intent</h3><p>Control marks, difficulty and Bloom's level instead of generating an undifferentiated question list.</p><div className="taxonomy-preview"><div><b>38%</b><small>Understand</small></div><div><b>27%</b><small>Apply</small></div><div><b>21%</b><small>Analyze</small></div><div><b>14%</b><small>Evaluate</small></div></div></article>
+      <article className="bento-card bento-dark"><div><span>03 · REUSE</span><h3>Your learning library stays editable.</h3><p>Update generated content, revisit earlier courses and export materials when they are ready to share.</p></div><div className="library-preview"><div><span>BEGINNER</span><strong>Modern Web Development</strong><small>6 weeks · 12 modules</small><i><b style={{width:"72%"}}/></i></div><div><span>INTERMEDIATE</span><strong>Artificial Intelligence</strong><small>8 weeks · 18 modules</small><i><b style={{width:"48%"}}/></i></div><div><span>ADVANCED</span><strong>Data Structures</strong><small>10 weeks · 20 modules</small><i><b style={{width:"86%"}}/></i></div></div></article>
+    </div></section>
+
+    <section className="course-library page-width" id="courses"><header><div><span className="modern-eyebrow">Your knowledge library</span><h2>Continue learning</h2></div><button className="modern-button dark" onClick={()=>setModal(true)}><Icon name="plus"/>New course</button></header>{loading?<div className="modern-course-grid">{[1,2,3].map(i=><div className="modern-course-card modern-skeleton" key={i}/>)}</div>:courses.length?<div className="modern-course-grid">{courses.map(c=><CourseCard key={c._id} course={c} onOpen={()=>openCourse(c)}/>)}</div>:<div className="modern-empty"><span><Icon name="book" size={25}/></span><h3>Build your first learning path</h3><p>Your generated courses will appear here with their modules, material and assessment history.</p><button className="modern-button primary" onClick={()=>setModal(true)}>Create a course</button></div>}</section>
+
+    <section className="guide-section page-width" id="learning-guide"><div><span className="modern-eyebrow">A focused workflow</span><h2>Start with a precise learning goal.</h2><p>Strong inputs produce useful curricula. Name the topic, identify who is learning, choose a realistic duration and set the starting difficulty.</p><button className="modern-button primary" onClick={()=>setModal(true)}>Define my course <Icon name="arrow"/></button></div><ol><li><b>01</b><span><strong>Describe the outcome</strong><small>Use a specific subject or skill, not a broad category.</small></span></li><li><b>02</b><span><strong>Set learner context</strong><small>Audience and difficulty determine depth, language and examples.</small></span></li><li><b>03</b><span><strong>Review before exporting</strong><small>Edit generated material, then create assessments and assignments.</small></span></li></ol></section>
+
+    <section className="final-cta page-width"><h2>Turn the next topic into a course worth completing.</h2><button className="modern-button white" onClick={()=>setModal(true)}>Build a course <Icon name="arrow"/></button></section>
+  </div>{modal&&<CourseFormModal onClose={()=>setModal(false)} onSubmit={create} loading={generating}/>}<Toast message={error} type="error" onDismiss={()=>setError("")}/><Toast message={success} type="success" onDismiss={()=>setSuccess("")}/></AppShell>;
+}
