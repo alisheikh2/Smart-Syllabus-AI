@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useModalFocus from "../hooks/useModalFocus";
 
 const BLOOM_LEVELS = [
   "Knowledge",
@@ -16,6 +17,7 @@ const QUESTION_TYPES = [
 ];
 
 function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
+  const dialogRef = useModalFocus(onClose, loading);
   const [title,         setTitle]         = useState("");
   const [questionCount, setQuestionCount] = useState(5);
   const [questionType,  setQuestionType]  = useState("mixed");
@@ -107,8 +109,8 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
     "w-full px-3 py-2.5 rounded-xl bg-white/[0.07] border border-white/10 text-white text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="rise-in bg-[#1C1A33] border border-white/10 shadow-2xl rounded-3xl p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div className="course-config-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && !loading) onClose(); }}>
+      <div ref={dialogRef} className="course-config-modal" role="dialog" aria-modal="true" aria-label="Create assignment">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -117,7 +119,9 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           </h2>
           <button
             onClick={onClose}
-            className="text-[#A9A4C2] hover:text-white transition-colors duration-200 text-xl leading-none"
+            className="config-close"
+            aria-label="Close dialog"
+            disabled={loading}
           >
             ×
           </button>
@@ -142,8 +146,8 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           </div>
 
           {/* Question type + count */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-4">
-            <p className="text-white text-sm font-medium mb-3">Questions</p>
+          <div className="config-block">
+            <p className="config-block-title mb-3">Questions</p>
             <div className="flex flex-col gap-3">
               <div>
                 <label className="text-[#A9A4C2] text-xs mb-1.5 block">
@@ -225,13 +229,13 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           </div>
 
           {/* Week selection */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-4">
+          <div className="config-block">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-white text-sm font-medium">Cover which weeks?</p>
+              <p className="config-block-title">Cover which weeks?</p>
               <button
                 type="button"
                 onClick={toggleAllWeeks}
-                className="text-[#7C5CFF] hover:text-[#9B82FF] text-xs font-medium transition-colors duration-200"
+                className="accent-link text-xs font-medium"
               >
                 {selectedWeeks.length === syllabus?.length
                   ? "Deselect all"
@@ -255,14 +259,14 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
               ))}
             </div>
             {weekError && (
-              <p className="text-[#FF6B5E] text-xs mt-2">{weekError}</p>
+              <p className="config-error text-xs mt-2">{weekError}</p>
             )}
           </div>
 
           {/* Difficulty distribution */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-4">
+          <div className="config-block">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-white text-sm font-medium">
+              <p className="config-block-title">
                 Difficulty distribution
               </p>
               <span
@@ -298,7 +302,7 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
             ))}
 
             {difficultyError && (
-              <p className="text-[#FF6B5E] text-xs mt-2">{difficultyError}</p>
+              <p className="config-error text-xs mt-2">{difficultyError}</p>
             )}
           </div>
 
@@ -306,7 +310,7 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           <button
             type="submit"
             disabled={isDisabled}
-            className="bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="config-submit bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

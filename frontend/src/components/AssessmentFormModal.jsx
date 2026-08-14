@@ -1,4 +1,5 @@
 import { useState } from "react";
+import useModalFocus from "../hooks/useModalFocus";
 
 const BLOOM_LEVELS = [
   "Knowledge",
@@ -9,6 +10,7 @@ const BLOOM_LEVELS = [
 ];
 
 function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
+  const dialogRef = useModalFocus(onClose, loading);
   const [mcqCount, setMcqCount] = useState(5);
   const [mcqMarks, setMcqMarks] = useState(1);
   const [mcqBloom, setMcqBloom] = useState("Knowledge");
@@ -109,8 +111,8 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
     "w-full px-3 py-2.5 rounded-xl bg-white/[0.07] border border-white/10 text-white text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="rise-in bg-[#1C1A33] border border-white/10 shadow-2xl rounded-3xl p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div className="course-config-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && !loading) onClose(); }}>
+      <div ref={dialogRef} className="course-config-modal" role="dialog" aria-modal="true" aria-label="Generate assessment">
 
         <div className="flex items-center justify-between mb-6">
           <h2 className="font-display text-xl font-bold text-white">
@@ -118,7 +120,9 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           </h2>
           <button
             onClick={onClose}
-            className="text-[#A9A4C2] hover:text-white transition-colors duration-200 text-xl leading-none"
+            className="config-close"
+            aria-label="Close dialog"
+            disabled={loading}
           >
             ×
           </button>
@@ -127,13 +131,13 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
           {/* Week selection */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-4">
+          <div className="config-block">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-white text-sm font-medium">Cover which weeks?</p>
+              <p className="config-block-title">Cover which weeks?</p>
               <button
                 type="button"
                 onClick={toggleAllWeeks}
-                className="text-[#7C5CFF] hover:text-[#9B82FF] text-xs font-medium transition-colors duration-200"
+                className="accent-link text-xs font-medium"
               >
                 {selectedWeeks.length === syllabus?.length ? "Deselect all" : "Select all"}
               </button>
@@ -157,13 +161,13 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
             </div>
 
             {weekError && (
-              <p className="text-[#FF6B5E] text-xs mt-2">{weekError}</p>
+              <p className="config-error text-xs mt-2">{weekError}</p>
             )}
           </div>
 
           {/* MCQs */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-4">
-            <p className="text-white text-sm font-medium mb-3">Multiple choice questions</p>
+          <div className="config-block">
+            <p className="config-block-title mb-3">Multiple choice questions</p>
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
                 <label className="text-[#A9A4C2] text-xs mb-1.5 block">Count</label>
@@ -203,8 +207,8 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           </div>
 
           {/* Short questions */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-4">
-            <p className="text-white text-sm font-medium mb-3">Short questions</p>
+          <div className="config-block">
+            <p className="config-block-title mb-3">Short questions</p>
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
                 <label className="text-[#A9A4C2] text-xs mb-1.5 block">Count</label>
@@ -244,8 +248,8 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           </div>
 
           {/* Long questions */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-4">
-            <p className="text-white text-sm font-medium mb-3">Long questions</p>
+          <div className="config-block">
+            <p className="config-block-title mb-3">Long questions</p>
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
                 <label className="text-[#A9A4C2] text-xs mb-1.5 block">Count</label>
@@ -285,9 +289,9 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           </div>
 
           {/* Difficulty distribution */}
-          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-4">
+          <div className="config-block">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-white text-sm font-medium">Difficulty distribution</p>
+              <p className="config-block-title">Difficulty distribution</p>
               <span className={`text-xs font-medium ${difficultyTotal === 100 ? "text-[#A9A4C2]" : "text-[#FF6B5E]"}`}>
                 {difficultyTotal}% total
               </span>
@@ -354,7 +358,7 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           <button
             type="submit"
             disabled={isDisabled}
-            className="bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="config-submit bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
