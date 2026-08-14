@@ -112,12 +112,10 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
 
   return (
     <div className="course-config-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && !loading) onClose(); }}>
-      <div ref={dialogRef} className="course-config-modal" role="dialog" aria-modal="true" aria-label="Generate assessment">
+      <div ref={dialogRef} className="course-config-modal" role="dialog" aria-modal="true" aria-label="Generate assessment paper">
 
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-xl font-bold text-white">
-            Generate assessment
-          </h2>
+          <div className="config-heading"><span>ASSESSMENT DESIGN</span><h2>Build a balanced assessment</h2><p>Choose the covered modules, question mix, marks and cognitive level.</p></div>
           <button
             onClick={onClose}
             className="config-close"
@@ -133,7 +131,7 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           {/* Week selection */}
           <div className="config-block">
             <div className="flex items-center justify-between mb-3">
-              <p className="config-block-title">Cover which weeks?</p>
+              <p className="config-block-title">Select course modules</p>
               <button
                 type="button"
                 onClick={toggleAllWeeks}
@@ -167,10 +165,10 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
 
           {/* MCQs */}
           <div className="config-block">
-            <p className="config-block-title mb-3">Multiple choice questions</p>
+            <p className="config-block-title mb-3">Multiple-choice section</p>
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
-                <label className="text-[#A9A4C2] text-xs mb-1.5 block">Count</label>
+                <label className="text-[#A9A4C2] text-xs mb-1.5 block">Number of questions</label>
                 <input
                   type="number"
                   min="0"
@@ -191,7 +189,7 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
               </div>
             </div>
             <div>
-              <label className="text-[#A9A4C2] text-xs mb-1.5 block">Bloom's level</label>
+              <label className="text-[#A9A4C2] text-xs mb-1.5 block">Primary Bloom's level</label>
               <select
                 value={mcqBloom}
                 onChange={(e) => setMcqBloom(e.target.value)}
@@ -206,12 +204,12 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
             </div>
           </div>
 
-          {/* Short questions */}
+          {/* Short-answer section */}
           <div className="config-block">
-            <p className="config-block-title mb-3">Short questions</p>
+            <p className="config-block-title mb-3">Short-answer section</p>
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
-                <label className="text-[#A9A4C2] text-xs mb-1.5 block">Count</label>
+                <label className="text-[#A9A4C2] text-xs mb-1.5 block">Number of questions</label>
                 <input
                   type="number"
                   min="0"
@@ -232,7 +230,7 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
               </div>
             </div>
             <div>
-              <label className="text-[#A9A4C2] text-xs mb-1.5 block">Bloom's level</label>
+              <label className="text-[#A9A4C2] text-xs mb-1.5 block">Primary Bloom's level</label>
               <select
                 value={shortBloom}
                 onChange={(e) => setShortBloom(e.target.value)}
@@ -247,12 +245,12 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
             </div>
           </div>
 
-          {/* Long questions */}
+          {/* Extended-response section */}
           <div className="config-block">
-            <p className="config-block-title mb-3">Long questions</p>
+            <p className="config-block-title mb-3">Extended-response section</p>
             <div className="flex gap-3 mb-3">
               <div className="flex-1">
-                <label className="text-[#A9A4C2] text-xs mb-1.5 block">Count</label>
+                <label className="text-[#A9A4C2] text-xs mb-1.5 block">Number of questions</label>
                 <input
                   type="number"
                   min="0"
@@ -273,7 +271,7 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
               </div>
             </div>
             <div>
-              <label className="text-[#A9A4C2] text-xs mb-1.5 block">Bloom's level</label>
+              <label className="text-[#A9A4C2] text-xs mb-1.5 block">Primary Bloom's level</label>
               <select
                 value={longBloom}
                 onChange={(e) => setLongBloom(e.target.value)}
@@ -288,10 +286,10 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
             </div>
           </div>
 
-          {/* Difficulty distribution */}
+          {/* Difficulty balance */}
           <div className="config-block">
             <div className="flex items-center justify-between mb-3">
-              <p className="config-block-title">Difficulty distribution</p>
+              <p className="config-block-title">Difficulty balance</p>
               <span className={`text-xs font-medium ${difficultyTotal === 100 ? "text-[#A9A4C2]" : "text-[#FF6B5E]"}`}>
                 {difficultyTotal}% total
               </span>
@@ -368,7 +366,7 @@ function AssessmentFormModal({ syllabus, onClose, onSubmit, loading }) {
             ) : cooldown > 0 ? (
               `Please wait (${cooldown}s)`
             ) : (
-              "Generate assessment"
+              "Generate assessment paper"
             )}
           </button>
 

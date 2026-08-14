@@ -110,13 +110,11 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
 
   return (
     <div className="course-config-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && !loading) onClose(); }}>
-      <div ref={dialogRef} className="course-config-modal" role="dialog" aria-modal="true" aria-label="Create assignment">
+      <div ref={dialogRef} className="course-config-modal" role="dialog" aria-modal="true" aria-label="Generate assignment">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-display text-xl font-bold text-white">
-            Create assignment
-          </h2>
+          <div className="config-heading"><span>APPLIED LEARNING</span><h2>Create a purposeful assignment</h2><p>Define the task format, course coverage, marks and expected cognitive depth.</p></div>
           <button
             onClick={onClose}
             className="config-close"
@@ -137,7 +135,7 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Week 1-3 Assignment"
+              placeholder="e.g. Applied Machine Learning Review"
               className={inputClass}
             />
             {titleError && (
@@ -147,7 +145,7 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
 
           {/* Question type + count */}
           <div className="config-block">
-            <p className="config-block-title mb-3">Questions</p>
+            <p className="config-block-title mb-3">Question design</p>
             <div className="flex flex-col gap-3">
               <div>
                 <label className="text-[#A9A4C2] text-xs mb-1.5 block">
@@ -199,7 +197,7 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           {/* Bloom's level */}
           <div>
             <label className="text-[#A9A4C2] text-xs font-medium uppercase tracking-wide mb-1.5 block">
-              Bloom's level focus
+              Primary Bloom's level
             </label>
             <select
               value={bloomLevel}
@@ -217,21 +215,21 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           {/* Due date */}
           <div>
             <label className="text-[#A9A4C2] text-xs font-medium uppercase tracking-wide mb-1.5 block">
-              Due date (optional)
+              Submission date (optional)
             </label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               className={inputClass}
-              style={{ colorScheme: "dark" }}
+              style={{ colorScheme: "light" }}
             />
           </div>
 
           {/* Week selection */}
           <div className="config-block">
             <div className="flex items-center justify-between mb-3">
-              <p className="config-block-title">Cover which weeks?</p>
+              <p className="config-block-title">Select course modules</p>
               <button
                 type="button"
                 onClick={toggleAllWeeks}
@@ -263,11 +261,11 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
             )}
           </div>
 
-          {/* Difficulty distribution */}
+          {/* Difficulty balance */}
           <div className="config-block">
             <div className="flex items-center justify-between mb-3">
               <p className="config-block-title">
-                Difficulty distribution
+                Difficulty balance
               </p>
               <span
                 className={`text-xs font-medium ${
@@ -320,7 +318,7 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
             ) : cooldown > 0 ? (
               `Please wait (${cooldown}s)`
             ) : (
-              "Create assignment"
+              "Generate assignment"
             )}
           </button>
 
