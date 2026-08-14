@@ -16,7 +16,7 @@ function EditableList({ items, onChange }) {
     <ul className="flex flex-col gap-2">
       {items.map((item, i) => (
         <li key={i} className="flex items-start gap-2 group/item">
-          <span className="text-[#7C5CFF] mt-1 shrink-0">•</span>
+          <span className="text-[#0866FF] mt-1 shrink-0">•</span>
           <span className="flex-1 text-[#A9A4C2] text-sm">
             <EditableText value={item} onSave={(val) => updateItem(i, val)} />
           </span>
@@ -31,7 +31,7 @@ function EditableList({ items, onChange }) {
       <li>
         <button
           onClick={addItem}
-          className="text-[#7C5CFF] text-xs hover:text-[#9B82FF] transition-colors duration-150 flex items-center gap-1 mt-1"
+          className="text-[#0866FF] text-xs hover:text-[#075DE9] transition-colors duration-150 flex items-center gap-1 mt-1"
         >
           + Add item
         </button>
@@ -102,7 +102,7 @@ function EditableStudyMaterial({ studyMaterial, onChange }) {
           </button>
           <button
             onClick={handleSave}
-            className="bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white text-sm px-5 py-2 rounded-xl hover:shadow-lg hover:shadow-violet-500/30 transition-all duration-150"
+            className="bg-gradient-to-r from-[#0866FF] to-[#05A88B] text-white text-sm px-5 py-2 rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-150"
           >
             Save changes
           </button>

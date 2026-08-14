@@ -103,10 +103,10 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
   };
 
   const inputClass =
-    "w-full px-3 py-2.5 rounded-xl bg-white/[0.07] border border-white/10 text-white text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200";
+    "w-full px-3 py-2.5 rounded-xl bg-white/[0.07] border border-white/10 text-white text-sm outline-none focus:border-[#0866FF] focus:bg-white/[0.1] transition-all duration-200";
 
   const selectClass =
-    "w-full px-3 py-2.5 rounded-xl bg-white/[0.07] border border-white/10 text-white text-sm outline-none focus:border-[#7C5CFF] focus:bg-white/[0.1] transition-all duration-200";
+    "w-full px-3 py-2.5 rounded-xl bg-white/[0.07] border border-white/10 text-white text-sm outline-none focus:border-[#0866FF] focus:bg-white/[0.1] transition-all duration-200";
 
   return (
     <div className="course-config-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && !loading) onClose(); }}>
@@ -250,7 +250,7 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
                     type="checkbox"
                     checked={selectedWeeks.includes(w.week)}
                     onChange={() => toggleWeek(w.week)}
-                    className="accent-[#7C5CFF] w-4 h-4 cursor-pointer"
+                    className="accent-[#0866FF] w-4 h-4 cursor-pointer"
                   />
                   {w.week}
                 </label>
@@ -294,7 +294,7 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
                   max="100"
                   value={value}
                   onChange={(e) => setter(Number(e.target.value))}
-                  className="w-full accent-[#7C5CFF] cursor-pointer"
+                  className="w-full accent-[#0866FF] cursor-pointer"
                 />
               </div>
             ))}
@@ -308,7 +308,7 @@ function AssignmentFormModal({ syllabus, onClose, onSubmit, loading }) {
           <button
             type="submit"
             disabled={isDisabled}
-            className="config-submit bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-violet-500/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="config-submit bg-gradient-to-r from-[#0866FF] to-[#05A88B] text-white py-3 rounded-xl font-medium transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/30 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

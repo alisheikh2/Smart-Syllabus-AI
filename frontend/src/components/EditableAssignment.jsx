@@ -13,7 +13,7 @@ function McqEditor({ q, index, onChange }) {
       {/* Type badge */}
       <div className="flex items-center gap-2">
         <span className="text-white text-sm font-medium">Q{index + 1}.</span>
-        <span className="text-xs px-2 py-0.5 rounded-md font-medium text-[#7C5CFF] bg-[#7C5CFF]/10">
+        <span className="text-xs px-2 py-0.5 rounded-md font-medium text-[#0866FF] bg-[#0866FF]/10">
           MCQ
         </span>
         <span className="text-[#A9A4C2]/50 text-xs">
@@ -43,13 +43,13 @@ function McqEditor({ q, index, onChange }) {
             key={oi}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all duration-150 ${
               q.correctAnswer === opt
-                ? "border-[#7C5CFF]/50 bg-[#7C5CFF]/10"
+                ? "border-[#0866FF]/50 bg-[#0866FF]/10"
                 : "border-white/5 bg-white/[0.02]"
             }`}
           >
             <span
               className={`font-semibold text-xs shrink-0 ${
-                q.correctAnswer === opt ? "text-[#7C5CFF]" : "text-[#A9A4C2]"
+                q.correctAnswer === opt ? "text-[#0866FF]" : "text-[#A9A4C2]"
               }`}
             >
               {LABELS[oi]}.
@@ -61,12 +61,12 @@ function McqEditor({ q, index, onChange }) {
               <button
                 onClick={() => onChange({ ...q, correctAnswer: opt })}
                 title="Mark as correct"
-                className="text-[#7C5CFF]/40 hover:text-[#7C5CFF] text-xs transition-colors duration-150"
+                className="text-[#0866FF]/40 hover:text-[#0866FF] text-xs transition-colors duration-150"
               >
                 ✓
               </button>
             ) : (
-              <span className="text-[#7C5CFF] text-xs">✓</span>
+              <span className="text-[#0866FF] text-xs">✓</span>
             )}
           </div>
         ))}
@@ -75,7 +75,7 @@ function McqEditor({ q, index, onChange }) {
       {/* Correct answer */}
       <p className="text-xs text-[#A9A4C2]">
         Correct answer:{" "}
-        <span className="text-[#7C5CFF] font-medium">
+        <span className="text-[#0866FF] font-medium">
           <EditableText
             value={q.correctAnswer || ""}
             onSave={(val) => onChange({ ...q, correctAnswer: val })}
@@ -197,7 +197,7 @@ function EditableAssignment({ assignment, onSave }) {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white text-sm px-5 py-2 rounded-xl hover:shadow-lg hover:shadow-violet-500/30 transition-all duration-150 disabled:opacity-60 flex items-center gap-2"
+              className="bg-gradient-to-r from-[#0866FF] to-[#05A88B] text-white text-sm px-5 py-2 rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-150 disabled:opacity-60 flex items-center gap-2"
             >
               {saving ? (
                 <>

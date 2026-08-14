@@ -32,13 +32,13 @@ function McqEditor({ mcq, index, onChange }) {
             key={oi}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all duration-150 ${
               mcq.correctAnswer === opt
-                ? "border-[#7C5CFF]/50 bg-[#7C5CFF]/10"
+                ? "border-[#0866FF]/50 bg-[#0866FF]/10"
                 : "border-white/5 bg-white/[0.02]"
             }`}
           >
             <span
               className={`font-semibold text-xs shrink-0 ${
-                mcq.correctAnswer === opt ? "text-[#7C5CFF]" : "text-[#A9A4C2]"
+                mcq.correctAnswer === opt ? "text-[#0866FF]" : "text-[#A9A4C2]"
               }`}
             >
               {LABELS[oi]}.
@@ -54,13 +54,13 @@ function McqEditor({ mcq, index, onChange }) {
               <button
                 onClick={() => onChange({ ...mcq, correctAnswer: opt })}
                 title="Mark as correct answer"
-                className="opacity-0 group-hover:opacity-100 text-[#7C5CFF]/50 hover:text-[#7C5CFF] text-xs shrink-0 transition-all duration-150"
+                className="opacity-0 group-hover:opacity-100 text-[#0866FF]/50 hover:text-[#0866FF] text-xs shrink-0 transition-all duration-150"
               >
                 ✓
               </button>
             )}
             {mcq.correctAnswer === opt && (
-              <span className="text-[#7C5CFF] text-xs shrink-0">✓</span>
+              <span className="text-[#0866FF] text-xs shrink-0">✓</span>
             )}
           </div>
         ))}
@@ -69,7 +69,7 @@ function McqEditor({ mcq, index, onChange }) {
       {/* Correct answer text edit */}
       <div className="text-xs text-[#A9A4C2]">
         Correct answer:{" "}
-        <span className="text-[#7C5CFF] font-medium">
+        <span className="text-[#0866FF] font-medium">
           <EditableText
             value={mcq.correctAnswer || ""}
             onSave={(val) => onChange({ ...mcq, correctAnswer: val })}
@@ -83,7 +83,7 @@ function McqEditor({ mcq, index, onChange }) {
         <span className="text-[#A9A4C2]/50 text-xs bg-white/5 px-2 py-0.5 rounded-md">
           {mcq.difficulty}
         </span>
-        <span className="text-[#7C5CFF]/60 text-xs bg-[#7C5CFF]/5 px-2 py-0.5 rounded-md">
+        <span className="text-[#0866FF]/60 text-xs bg-[#0866FF]/5 px-2 py-0.5 rounded-md">
           {mcq.bloomLevel}
         </span>
       </div>
@@ -108,7 +108,7 @@ function QaEditor({ q, index, label, onChange }) {
         </p>
       </div>
 
-      <div className="border-l-2 border-[#7C5CFF]/30 pl-3">
+      <div className="border-l-2 border-[#0866FF]/30 pl-3">
         <span className="text-[#A9A4C2] text-xs mb-1 block">Model answer</span>
         <p className="text-[#A9A4C2] text-sm leading-relaxed">
           <EditableText
@@ -123,7 +123,7 @@ function QaEditor({ q, index, label, onChange }) {
         <span className="text-[#A9A4C2]/50 text-xs bg-white/5 px-2 py-0.5 rounded-md">
           {q.difficulty}
         </span>
-        <span className="text-[#7C5CFF]/60 text-xs bg-[#7C5CFF]/5 px-2 py-0.5 rounded-md">
+        <span className="text-[#0866FF]/60 text-xs bg-[#0866FF]/5 px-2 py-0.5 rounded-md">
           {q.bloomLevel}
         </span>
       </div>
@@ -238,7 +238,7 @@ function EditableAssessment({ assessment, onSave }) {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white text-sm px-5 py-2 rounded-xl hover:shadow-lg hover:shadow-violet-500/30 transition-all duration-150 disabled:opacity-60 flex items-center gap-2"
+              className="bg-gradient-to-r from-[#0866FF] to-[#05A88B] text-white text-sm px-5 py-2 rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-150 disabled:opacity-60 flex items-center gap-2"
             >
               {saving ? (
                 <>

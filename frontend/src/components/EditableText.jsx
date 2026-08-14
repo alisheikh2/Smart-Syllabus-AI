@@ -50,7 +50,7 @@ function EditableText({
 
   if (editing) {
     const sharedClass =
-      "w-full bg-[#15132B] border border-[#7C5CFF] rounded-lg px-2 py-1 text-white text-sm outline-none resize-none transition-all duration-150";
+      "w-full bg-[#15132B] border border-[#0866FF] rounded-lg px-2 py-1 text-white text-sm outline-none resize-none transition-all duration-150";
 
     return multiline ? (
       <textarea
@@ -83,7 +83,7 @@ function EditableText({
       {value || (
         <span className="text-[#A9A4C2]/50 italic">{placeholder}</span>
       )}
-      <span className="inline-block ml-1.5 opacity-0 group-hover:opacity-60 transition-opacity duration-150 text-[#7C5CFF] text-xs align-middle">
+      <span className="inline-block ml-1.5 opacity-0 group-hover:opacity-60 transition-opacity duration-150 text-[#0866FF] text-xs align-middle">
         ✎
       </span>
     </span>

@@ -103,7 +103,7 @@ function EditableSyllabus({ syllabus, onChange }) {
                 key={ti}
                 className="flex items-start gap-2 group/topic"
               >
-                <span className="text-[#7C5CFF] mt-1 shrink-0">•</span>
+                <span className="text-[#0866FF] mt-1 shrink-0">•</span>
                 <span className="flex-1 text-[#A9A4C2] text-sm">
                   <EditableText
                     value={topic}
@@ -124,7 +124,7 @@ function EditableSyllabus({ syllabus, onChange }) {
           {/* Add topic */}
           <button
             onClick={() => addTopic(wi)}
-            className="mt-3 text-[#7C5CFF] text-xs hover:text-[#9B82FF] transition-colors duration-150 flex items-center gap-1"
+            className="mt-3 text-[#0866FF] text-xs hover:text-[#075DE9] transition-colors duration-150 flex items-center gap-1"
           >
             + Add topic
           </button>
@@ -134,7 +134,7 @@ function EditableSyllabus({ syllabus, onChange }) {
       {/* Add week */}
       <button
         onClick={addWeek}
-        className="border border-dashed border-white/20 hover:border-[#7C5CFF]/50 text-[#A9A4C2] hover:text-[#7C5CFF] rounded-2xl p-4 text-sm transition-all duration-200 flex items-center justify-center gap-2"
+        className="border border-dashed border-white/20 hover:border-[#0866FF]/50 text-[#A9A4C2] hover:text-[#0866FF] rounded-2xl p-4 text-sm transition-all duration-200 flex items-center justify-center gap-2"
       >
         + Add week
       </button>
@@ -150,7 +150,7 @@ function EditableSyllabus({ syllabus, onChange }) {
           </button>
           <button
             onClick={handleSave}
-            className="bg-gradient-to-r from-[#7C5CFF] to-[#6845E8] text-white text-sm px-5 py-2 rounded-xl hover:shadow-lg hover:shadow-violet-500/30 transition-all duration-150"
+            className="bg-gradient-to-r from-[#0866FF] to-[#05A88B] text-white text-sm px-5 py-2 rounded-xl hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-150"
           >
             Save changes
           </button>
